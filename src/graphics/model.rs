@@ -42,115 +42,87 @@ impl Model {
     }
 
     fn make_bottom(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
-                                                 &[255, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y, origin.z),
-                                                 &[255, 255, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[255, 255, 255])]);
+        let c = [255, 255, 255];
+        let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
-                                                 &[255, 255, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
-                                                 &[255, 255, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[255, 255, 255])]);
+                 vnew(point3(origin.x, origin.y, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 
     fn make_top(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
-                                                 &[0, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1,
-                                                        origin.y + 1,
-                                                        origin.z + 1),
-                                                 &[0, 0, 0]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[0, 0, 0])]);
+        let c = [0, 0, 0];
+        let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1,
-                                                        origin.y + 1,
-                                                        origin.z + 1),
-                                                 &[0, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
-                                                 &[0, 0, 0]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[0, 0, 0])]);
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 
     fn make_back(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
-                                                 &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
-                                                 &[255, 0, 255])]);
+        let c = [255, 0, 255];
+        let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
-                                                 &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
-                                                 &[255, 0, 255])]);
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 
     fn make_front(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
-                                                 &[0, 255, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[0, 255, 0]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
-                                                 &[0, 255, 0])]);
+        let c = [0, 255, 0];
+        let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[0, 255, 0]),
-                                     Vertex::new(point3(origin.x + 1,
-                                                        origin.y + 1,
-                                                        origin.z + 1),
-                                                 &[0, 255, 0]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
-                                                 &[0, 255, 0])]);
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 
     fn make_left(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
-                                                 &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y, origin.z + 1),
-                                                 &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[0, 255, 255])]);
+        let c = [0, 255, 255];
+        let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
+                 vnew(point3(origin.x, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
-                                                 &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
-                                                 &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
-                                                 &[0, 255, 255])]);
+                 vnew(point3(origin.x, origin.y, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x, origin.y + 1, origin.z), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 
     fn make_right(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y, origin.z),
-                                                 &[255, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
-                                                 &[255, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[255, 0, 0])]);
+        let c = [255, 0, 0];
+        let v = [vnew(point3(origin.x + 1, origin.y, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
-                                                 &[255, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1,
-                                                        origin.y + 1,
-                                                        origin.z + 1),
-                                                 &[255, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
-                                                 &[255, 0, 0])]);
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
+                 vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
+                 vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c)];
+
+        vert_out.extend_from_slice(&v);
     }
 }
 
-impl Vertex {
-    fn new(position: Point3<u8>, color: &SVector3<u8>) -> Vertex {
-        Vertex {
-            position: position.into(),
-            color: color.clone(),
-        }
+fn vnew(position: Point3<u8>, color: &SVector3<u8>) -> Vertex {
+    Vertex {
+        position: position.into(),
+        color: color.clone(),
     }
 }
