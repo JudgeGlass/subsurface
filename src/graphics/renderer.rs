@@ -2,13 +2,15 @@ use glium;
 use glium::{Program, Frame, Surface, DrawParameters};
 use glium::backend::Facade;
 
-use cgmath::{Matrix4, Point3, vec3, Deg, perspective};
+use cgmath::{Point3, vec3, Deg, perspective};
 
 use super::model::Model;
+use super::Camera;
 
 pub struct Renderer {
     program: Program,
     model: Model,
+    pub camera: Camera,
 }
 
 impl Renderer {
@@ -22,6 +24,7 @@ impl Renderer {
         Renderer {
             program: program,
             model: model,
+            camera: Camera::new(Point3::new(-4.0, 7.0, -4.0), 0.0, 0.0),
         }
     }
 
@@ -37,18 +40,16 @@ impl Renderer {
         };
 
         let (width, height) = frame.get_dimensions();
-        let camera_position = Point3::new(-4.0, 7.0, -4.0);
-        let view: [[f32; 4]; 4] = Matrix4::look_at(camera_position,
-                                                   Point3::new(0.0, 0.0, 0.0),
-                                                   vec3(0.0, 1.0, 0.0))
-            .into();
         let projection: [[f32; 4]; 4] =
             perspective(Deg(90.0), width as f32 / height as f32, 0.1, 100.0).into();
 
         frame.draw(&self.model.vbo,
                   &self.model.ibo,
                   &self.program,
-                  &uniform!(projection: projection, view: view, model: self.model.model),
+                  &uniform!(
+                       projection: projection,
+                       view: *self.camera.get_view_matrix(),
+                       model: self.model.model),
                   &params)
             .unwrap();
     }
