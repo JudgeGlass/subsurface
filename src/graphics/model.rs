@@ -1,11 +1,12 @@
 use glium;
-use cgmath::{Vector3, Matrix4};
+
+use prelude::*;
 
 // If this is > 12 bytes, indexed drawing is has better space efficiency
 #[derive(Copy, Clone)]
 pub struct Vertex {
-    position: [u8; 3],
-    color: [u8; 3],
+    position: SVector3<u8>,
+    color: SVector3<u8>,
 }
 
 implement_vertex!(Vertex, position normalize(false), color normalize(true));
@@ -13,10 +14,8 @@ implement_vertex!(Vertex, position normalize(false), color normalize(true));
 pub struct Model {
     pub vbo: glium::VertexBuffer<Vertex>,
     pub ibo: glium::index::NoIndices,
-    pub model: [[f32; 4]; 4],
+    pub model: SMatrix4<f32>,
 }
-
-type RVec3 = [u8; 3];
 
 impl Model {
     pub fn new<F: glium::backend::Facade>(facade: &F, translate: Vector3<f32>) -> Model {
@@ -25,12 +24,12 @@ impl Model {
         for i in 0..3 {
             for j in 0..3 {
                 for k in 0..3 {
-                    Model::make_bottom(&[i * 2, j * 2, k * 2], &mut verts);
-                    Model::make_top(&[i * 2, j * 2, k * 2], &mut verts);
-                    Model::make_front(&[i * 2, j * 2, k * 2], &mut verts);
-                    Model::make_back(&[i * 2, j * 2, k * 2], &mut verts);
-                    Model::make_left(&[i * 2, j * 2, k * 2], &mut verts);
-                    Model::make_right(&[i * 2, j * 2, k * 2], &mut verts);
+                    Model::make_bottom(point3(i * 2, j * 2, k * 2), &mut verts);
+                    Model::make_top(point3(i * 2, j * 2, k * 2), &mut verts);
+                    Model::make_front(point3(i * 2, j * 2, k * 2), &mut verts);
+                    Model::make_back(point3(i * 2, j * 2, k * 2), &mut verts);
+                    Model::make_left(point3(i * 2, j * 2, k * 2), &mut verts);
+                    Model::make_right(point3(i * 2, j * 2, k * 2), &mut verts);
                 }
             }
         }
@@ -42,107 +41,107 @@ impl Model {
         }
     }
 
-    fn make_bottom(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2] + 1],
+    fn make_bottom(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
                                                  &[255, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1], origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[255, 255, 255]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[255, 255, 255])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[255, 255, 255]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2]],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
                                                  &[255, 255, 255]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[255, 255, 255])]);
     }
 
-    fn make_top(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
+    fn make_top(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[0, 0, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[0, 0, 0])]);
     }
 
-    fn make_back(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2]],
+    fn make_back(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y+1, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0]+1, origin[1], origin[2]],
+                                     Vertex::new(point3(origin.x+1, origin.y, origin.z),
                                                  &[255, 0, 255])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2]],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
                                                  &[255, 0, 255])]);
     }
 
-    fn make_front(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2] + 1],
+    fn make_front(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 255, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 255, 0])]);
     }
 
-    fn make_left(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2]],
+    fn make_left(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1], origin[2]+1],
+                                     Vertex::new(point3(origin.x, origin.y, origin.z+1),
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y+1, origin.z),
                                                  &[0, 255, 255])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2] + 1],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[0, 255, 255])]);
     }
 
-    fn make_right(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1], origin[2]],
+    fn make_right(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y, origin.z),
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[255, 0, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[255, 0, 0])]);
     }
 }
 
 impl Vertex {
-    fn new(position: &RVec3, color: &RVec3) -> Vertex {
+    fn new(position: Point3<u8>, color: &SVector3<u8>) -> Vertex {
         Vertex {
-            position: position.clone(),
+            position: position.into(),
             color: color.clone(),
         }
     }

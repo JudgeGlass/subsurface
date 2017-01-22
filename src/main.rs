@@ -8,6 +8,9 @@ use std::f32;
 
 mod graphics;
 mod input;
+mod prelude;
+
+use prelude::*;
 
 fn main() {
     use glium::DisplayBuild;
@@ -32,10 +35,10 @@ fn main() {
 
     let mut voxrender = graphics::Renderer::new(&display);
 
-    let mut camera_frame_translator = cgmath::vec3(0.0, 0.0, 0.0);
+    let mut camera_frame_translator = vec3(0.0, 0.0, 0.0);
     let mut reference_time = Instant::now();
 
-    let mut last_mouse_coords = cgmath::vec2(0.0, 0.0);
+    let mut last_mouse_coords = vec2(0.0, 0.0);
 
     let mut cycler: u64 = 0;
 
@@ -55,9 +58,9 @@ fn main() {
                 input::Command::CameraTranslate(input::State::Start, ammount) => {
                     camera_frame_translator += ammount;
                     // Key-repeat is dumb
-                    camera_frame_translator.x = camera_frame_translator.x.max(-1.0).min(1.0);
-                    camera_frame_translator.y = camera_frame_translator.y.max(-1.0).min(1.0);
-                    camera_frame_translator.z = camera_frame_translator.z.max(-1.0).min(1.0);
+                    camera_frame_translator.x = clamp(camera_frame_translator.x, -1.0, 1.0);
+                    camera_frame_translator.y = clamp(camera_frame_translator.y, -1.0, 1.0);
+                    camera_frame_translator.z = clamp(camera_frame_translator.z, -1.0, 1.0);
                 }
                 input::Command::CameraTranslate(input::State::Stop, ammount) => {
                     camera_frame_translator -= ammount;

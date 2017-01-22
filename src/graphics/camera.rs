@@ -1,5 +1,6 @@
-use cgmath::{Matrix4, Point3, Vector3, Basis2, Rotation2, Rotation, Vector2, Rad, vec3, vec2};
+use cgmath::{Basis2, Rotation2, Rotation, Rad};
 
+use prelude::*;
 use std::f32;
 
 pub struct Camera {
@@ -7,7 +8,7 @@ pub struct Camera {
     theta: f32,
     position: Point3<f32>,
 
-    view_matrix: [[f32; 4]; 4],
+    view_matrix: SMatrix4<f32>,
 }
 
 fn phi_theta_to_focus(phi: f32, theta: f32, position: Point3<f32>) -> Point3<f32> {
@@ -24,7 +25,7 @@ fn phi_theta_to_up(phi: f32, theta: f32) -> Vector3<f32> {
          theta_prime.sin() * phi.sin())
 }
 
-fn phi_theta_pos_to_matrix(phi: f32, theta: f32, position: Point3<f32>) -> [[f32; 4]; 4] {
+fn phi_theta_pos_to_matrix(phi: f32, theta: f32, position: Point3<f32>) -> SMatrix4<f32> {
     Matrix4::look_at(position,
                      phi_theta_to_focus(phi, theta, position),
                      phi_theta_to_up(phi, theta))
@@ -56,12 +57,12 @@ impl Camera {
         self.theta += motion.y;
 
         self.phi = self.phi % (2.0 * f32::consts::PI);
-        self.theta = self.theta.max(0.02).min(f32::consts::PI - 0.01);
+        self.theta = clamp(self.theta, 0.02, f32::consts::PI - 0.01);
 
         self.recompute();
     }
 
-    pub fn get_view_matrix(&self) -> &[[f32; 4]; 4] {
+    pub fn get_view_matrix(&self) -> &SMatrix4<f32> {
         &self.view_matrix
     }
 }

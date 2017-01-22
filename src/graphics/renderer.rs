@@ -1,8 +1,10 @@
+use prelude::*;
+
 use glium;
 use glium::{Program, Frame, Surface, DrawParameters};
 use glium::backend::Facade;
 
-use cgmath::{Point3, vec3, Deg, perspective};
+use cgmath::{Deg, perspective};
 
 use super::model::Model;
 use super::Camera;
@@ -24,7 +26,7 @@ impl Renderer {
         Renderer {
             program: program,
             model: model,
-            camera: Camera::new(Point3::new(-4.0, 7.0, -4.0), 0.0, 0.0),
+            camera: Camera::new(point3(-4.0, 7.0, -4.0), 0.0, 0.0),
         }
     }
 
