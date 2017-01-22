@@ -2,6 +2,7 @@
 extern crate glium;
 extern crate glutin;
 extern crate cgmath;
+extern crate dot_vox;
 
 use std::time::Instant;
 use std::f32;

@@ -1,4 +1,5 @@
 use glium;
+use dot_vox;
 
 use prelude::*;
 
@@ -21,16 +22,17 @@ impl Model {
     pub fn new<F: glium::backend::Facade>(facade: &F, translate: Vector3<f32>) -> Model {
         let mut verts = Vec::new();
 
-        for i in 0..3 {
-            for j in 0..3 {
-                for k in 0..3 {
-                    Model::make_bottom(point3(i * 2, j * 2, k * 2), &mut verts);
-                    Model::make_top(point3(i * 2, j * 2, k * 2), &mut verts);
-                    Model::make_front(point3(i * 2, j * 2, k * 2), &mut verts);
-                    Model::make_back(point3(i * 2, j * 2, k * 2), &mut verts);
-                    Model::make_left(point3(i * 2, j * 2, k * 2), &mut verts);
-                    Model::make_right(point3(i * 2, j * 2, k * 2), &mut verts);
-                }
+        let data = dot_vox::load("resources/monu16.vox").unwrap();
+        for model in data.models.iter() {
+            for voxel in model.voxels.iter() {
+                let loc = point3(voxel.x, voxel.y, voxel.z);
+
+                Model::make_bottom(loc, &mut verts);
+                Model::make_top(loc, &mut verts);
+                Model::make_front(loc, &mut verts);
+                Model::make_back(loc, &mut verts);
+                Model::make_left(loc, &mut verts);
+                Model::make_right(loc, &mut verts);
             }
         }
 
