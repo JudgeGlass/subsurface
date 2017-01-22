@@ -60,12 +60,16 @@ impl Model {
     fn make_top(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                                     Vertex::new(point3(origin.x + 1,
+                                                        origin.y + 1,
+                                                        origin.z + 1),
                                                  &[0, 0, 0]),
                                      Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[0, 0, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+        vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1,
+                                                        origin.y + 1,
+                                                        origin.z + 1),
                                                  &[0, 0, 0]),
                                      Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[0, 0, 0]),
@@ -76,9 +80,9 @@ impl Model {
     fn make_back(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x, origin.y+1, origin.z),
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[255, 0, 255]),
-                                     Vertex::new(point3(origin.x+1, origin.y, origin.z),
+                                     Vertex::new(point3(origin.x + 1, origin.y, origin.z),
                                                  &[255, 0, 255])]);
 
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y + 1, origin.z),
@@ -99,7 +103,9 @@ impl Model {
 
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[0, 255, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                                     Vertex::new(point3(origin.x + 1,
+                                                        origin.y + 1,
+                                                        origin.z + 1),
                                                  &[0, 255, 0]),
                                      Vertex::new(point3(origin.x, origin.y + 1, origin.z + 1),
                                                  &[0, 255, 0])]);
@@ -108,9 +114,9 @@ impl Model {
     fn make_left(origin: Point3<u8>, vert_out: &mut Vec<Vertex>) {
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z),
                                                  &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y, origin.z+1),
+                                     Vertex::new(point3(origin.x, origin.y, origin.z + 1),
                                                  &[0, 255, 255]),
-                                     Vertex::new(point3(origin.x, origin.y+1, origin.z),
+                                     Vertex::new(point3(origin.x, origin.y + 1, origin.z),
                                                  &[0, 255, 255])]);
 
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x, origin.y, origin.z + 1),
@@ -131,7 +137,9 @@ impl Model {
 
         vert_out.extend_from_slice(&[Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z),
                                                  &[255, 0, 0]),
-                                     Vertex::new(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                                     Vertex::new(point3(origin.x + 1,
+                                                        origin.y + 1,
+                                                        origin.z + 1),
                                                  &[255, 0, 0]),
                                      Vertex::new(point3(origin.x + 1, origin.y, origin.z + 1),
                                                  &[255, 0, 0])]);
