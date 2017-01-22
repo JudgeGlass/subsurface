@@ -59,18 +59,18 @@ impl Model {
     }
 
     fn make_top(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1]+1, origin[2] + 1],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
                                                  &[0, 0, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]+1],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0] + 1, origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
                                                  &[0, 0, 0]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
                                                  &[0, 0, 0])]);
     }
 
@@ -82,27 +82,27 @@ impl Model {
                                      Vertex::new(&[origin[0]+1, origin[1], origin[2]],
                                                  &[255, 0, 255])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
                                                  &[255, 0, 255]),
-                                     Vertex::new(&[origin[0]+1, origin[1], origin[2]],
+                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2]],
                                                  &[255, 0, 255])]);
     }
 
     fn make_front(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2]+1],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2] + 1],
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1], origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
                                                  &[0, 255, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0]+1, origin[1], origin[2]+1],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
                                                  &[0, 255, 0]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
                                                  &[0, 255, 0])]);
     }
 
@@ -114,30 +114,29 @@ impl Model {
                                      Vertex::new(&[origin[0], origin[1]+1, origin[2]],
                                                  &[0, 255, 255])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2]+1],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0], origin[1], origin[2] + 1],
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2] + 1],
                                                  &[0, 255, 255]),
-                                     Vertex::new(&[origin[0], origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0], origin[1] + 1, origin[2]],
                                                  &[0, 255, 255])]);
     }
 
     fn make_right(origin: &RVec3, vert_out: &mut Vec<Vertex>) {
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0]+1, origin[1], origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1], origin[2]],
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1], origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
                                                  &[255, 0, 0])]);
 
-        vert_out.extend_from_slice(&[Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]],
+        vert_out.extend_from_slice(&[Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2]],
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1]+1, origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1] + 1, origin[2] + 1],
                                                  &[255, 0, 0]),
-                                     Vertex::new(&[origin[0]+1, origin[1], origin[2]+1],
+                                     Vertex::new(&[origin[0] + 1, origin[1], origin[2] + 1],
                                                  &[255, 0, 0])]);
     }
-
 }
 
 impl Vertex {
