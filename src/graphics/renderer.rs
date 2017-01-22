@@ -26,7 +26,7 @@ impl Renderer {
         Renderer {
             program: program,
             model: model,
-            camera: Camera::new(point3(-4.0, 7.0, -4.0), 0.0, 0.0),
+            camera: Camera::new(point3(0.0, 7.0, 0.0), 0.0, 0.0),
         }
     }
 
@@ -43,7 +43,7 @@ impl Renderer {
 
         let (width, height) = frame.get_dimensions();
         let projection: [[f32; 4]; 4] =
-            perspective(Deg(90.0), width as f32 / height as f32, 0.1, 100.0).into();
+            perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
 
         frame.draw(&self.model.vbo,
                   &self.model.ibo,

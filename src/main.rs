@@ -39,8 +39,6 @@ fn main() {
     let mut camera_frame_translator = vec3(0.0, 0.0, 0.0);
     let mut reference_time = Instant::now();
 
-    let mut last_mouse_coords = vec2(0.0, 0.0);
-
     let mut cycler: u64 = 0;
 
     loop {
@@ -67,19 +65,23 @@ fn main() {
                     camera_frame_translator -= ammount;
                 }
                 input::Command::CameraLook(vec) => {
-                    let relative = vec - last_mouse_coords;
-                    last_mouse_coords = vec;
-                    voxrender.camera.look_around(0.01 * relative)
+                    let relative = vec - vec2(500.0, 500.0);
+                    voxrender.camera.look_around(0.01 * relative);
+
+                    display.get_window()
+                        .expect("Could not get window")
+                        .set_cursor_position(500, 500)
+                        .unwrap();
                 }
                 input::Command::Noop => (),
             }
         }
 
-        voxrender.camera.relative_translate(delta * camera_frame_translator);
+        voxrender.camera.relative_translate(delta * 5.0 * camera_frame_translator);
 
 
         let mut target = display.draw();
-        target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
+        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         voxrender.render(&mut target);
 
