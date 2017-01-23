@@ -45,9 +45,7 @@ pub struct World {
 
 #[inline]
 fn find_chunk_origin(point: WorldPoint) -> WorldPoint {
-    point3(point.x - (point.x % CHUNK_SIZE).abs(),
-           point.y - (point.y % CHUNK_SIZE).abs(),
-           point.z - (point.z % CHUNK_SIZE).abs())
+    point3(point.x & (-CHUNK_SIZE), point.y & (-CHUNK_SIZE), point.z & (-CHUNK_SIZE))
 }
 
 #[test]
@@ -56,6 +54,7 @@ fn origins() {
     assert_eq!(find_chunk_origin(point3(4,4,5)), point3(0,0,0));
     assert_eq!(find_chunk_origin(point3(-1,-1,-1)), point3(-CHUNK_SIZE,-CHUNK_SIZE,-CHUNK_SIZE));
 }
+
 
 impl World {
     pub fn from_vox(data: dot_vox::DotVoxData) -> World {
