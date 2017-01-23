@@ -3,6 +3,8 @@ extern crate glium;
 extern crate glutin;
 extern crate cgmath;
 extern crate dot_vox;
+#[macro_use]
+extern crate bitflags;
 
 use std::time::Instant;
 use std::f32;
@@ -10,6 +12,7 @@ use std::f32;
 mod graphics;
 mod input;
 mod prelude;
+mod world;
 
 use prelude::*;
 
@@ -34,12 +37,18 @@ fn main() {
         return;
     }
 
+    println!("FOOOO: {} {}", 150 % 11, -150 % 11);
+
     let mut voxrender = graphics::Renderer::new(&display);
 
     let mut camera_frame_translator = vec3(0.0, 0.0, 0.0);
     let mut reference_time = Instant::now();
 
     let mut cycler: u64 = 0;
+
+    let data = dot_vox::load("resources/menger.vox").unwrap();
+    let world = world::World::from_vox(data);
+    voxrender.add_models(world.make_models(&display));
 
     loop {
         let new_time = Instant::now();

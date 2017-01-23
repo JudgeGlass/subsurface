@@ -11,7 +11,7 @@ use super::Camera;
 
 pub struct Renderer {
     program: Program,
-    model: Model,
+    models: Vec<Model>,
     pub camera: Camera,
 }
 
@@ -21,13 +21,16 @@ impl Renderer {
         let fragment_shader_src = include_str!("../../resources/fragment.glsl");
         let program = Program::from_source(display, vertex_shader_src, fragment_shader_src, None)
             .unwrap();
-        let model = Model::new(display, vec3(0.0, 0.0, 0.0));
 
         Renderer {
             program: program,
-            model: model,
+            models: Vec::new(),
             camera: Camera::new(point3(0.0, 7.0, 0.0), 0.0, 0.0),
         }
+    }
+
+    pub fn add_models(&mut self, mut models: Vec<Model>) {
+        self.models.append(&mut models);
     }
 
     pub fn render(&self, frame: &mut Frame) {
@@ -45,14 +48,16 @@ impl Renderer {
         let projection: [[f32; 4]; 4] =
             perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
 
-        frame.draw(&self.model.vbo,
-                  &self.model.ibo,
-                  &self.program,
-                  &uniform!(
-                       projection: projection,
-                       view: *self.camera.get_view_matrix(),
-                       model: self.model.model),
-                  &params)
-            .unwrap();
+        for model in self.models.iter() {
+            frame.draw(&model.vbo,
+                      &model.ibo,
+                      &self.program,
+                      &uniform!(
+                           projection: projection,
+                           view: *self.camera.get_view_matrix(),
+                           model: model.model),
+                      &params)
+                .unwrap();
+        }
     }
 }

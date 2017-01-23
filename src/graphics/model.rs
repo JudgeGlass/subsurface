@@ -3,6 +3,8 @@ use dot_vox;
 
 use prelude::*;
 
+use world;
+
 // If this is > 12 bytes, indexed drawing is has better space efficiency
 #[derive(Copy, Clone)]
 pub struct Vertex {
@@ -29,30 +31,50 @@ fn darken(color: &mut SVector3<u8>, ammount: u8) {
 }
 
 impl Model {
-    pub fn new<F: glium::backend::Facade>(facade: &F, translate: Vector3<f32>) -> Model {
+    pub fn new<F: glium::backend::Facade>(facade: &F, chunk: &world::Chunk) -> Model {
         let mut verts = Vec::new();
 
-        let data = dot_vox::load("resources/menger.vox").unwrap();
+        for x in 0..world::CHUNK_SIZE as u8 {
+            for y in 0..world::CHUNK_SIZE as u8 {
+                for z in 0..world::CHUNK_SIZE as u8 {
+                    let loc = point3(x, y, z);
+                    let block = chunk.get_block_local(loc);
+                    if !block.is_empty() {
+                        let color32 = block.id.0;
+                        let color = [(color32 & 0xFF) as u8,
+                                     ((color32 >> 8) & 0xFF) as u8,
+                                     ((color32 >> 16) & 0xFF) as u8];
 
-        for model in data.models.iter() {
-            for voxel in model.voxels.iter() {
-                let loc = point3(voxel.y, voxel.z, voxel.x);
-                let color32 = data.pallete[voxel.i as usize];
-                let color = [(color32 & 0xFF) as u8, ((color32>>8) & 0xFF) as u8, ((color32>>16) & 0xFF) as u8];
-
-                Model::make_bottom(loc, color, &mut verts);
-                Model::make_top(loc, color, &mut verts);
-                Model::make_front(loc, color, &mut verts);
-                Model::make_back(loc, color, &mut verts);
-                Model::make_left(loc, color, &mut verts);
-                Model::make_right(loc, color, &mut verts);
+                        if block.visibility.contains(world::VISIBLE_BOTTOM) {
+                            Model::make_bottom(loc, color, &mut verts);
+                        }
+                        if block.visibility.contains(world::VISIBLE_TOP) {
+                            Model::make_top(loc, color, &mut verts);
+                        }
+                        if block.visibility.contains(world::VISIBLE_FRONT) {
+                            Model::make_front(loc, color, &mut verts);
+                        }
+                        if block.visibility.contains(world::VISIBLE_BACK) {
+                            Model::make_back(loc, color, &mut verts);
+                        }
+                        if block.visibility.contains(world::VISIBLE_LEFT) {
+                            Model::make_left(loc, color, &mut verts);
+                        }
+                        if block.visibility.contains(world::VISIBLE_RIGHT) {
+                            Model::make_right(loc, color, &mut verts);
+                        }
+                    }
+                }
             }
         }
 
         Model {
             vbo: glium::VertexBuffer::new(facade, &verts).unwrap(),
             ibo: glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-            model: Matrix4::from_translation(translate).into(),
+            model: Matrix4::from_translation(vec3(chunk.origin.x as f32,
+                                                  chunk.origin.y as f32,
+                                                  chunk.origin.z as f32))
+                .into(),
         }
     }
 
