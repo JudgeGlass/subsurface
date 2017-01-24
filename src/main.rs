@@ -1,10 +1,13 @@
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate glium;
 extern crate glutin;
 extern crate cgmath;
 extern crate dot_vox;
 #[macro_use]
 extern crate bitflags;
+extern crate time;
 
 use std::time::Instant;
 use std::f32;
@@ -13,12 +16,15 @@ mod graphics;
 mod input;
 mod prelude;
 mod world;
+mod logger;
 
 use prelude::*;
 
 fn main() {
     use glium::DisplayBuild;
     use glium::Surface;
+
+    logger::init().unwrap();
 
     let display = glutin::WindowBuilder::new()
         .with_depth_buffer(24)
@@ -36,8 +42,6 @@ fn main() {
         println!("Error: OpenGL 3.3 or later is required");
         return;
     }
-
-    println!("FOOOO: {} {}", 150 % 11, -150 % 11);
 
     let mut voxrender = graphics::Renderer::new(&display);
 
@@ -57,7 +61,7 @@ fn main() {
         let delta = elapsed.as_secs() as f32 + (elapsed.subsec_nanos() as f32 / 1_000_000_000.0);
 
         if cycler % 1000 == 0 || (delta > 0.016 && cycler % 10 == 0) {
-            println!("Frame time {}", (delta * 1000.0) as u64);
+            info!("Frame time {}", (delta * 1000.0) as u64);
         }
 
         for command in display.poll_events().map(input::glutin_event_to_command) {

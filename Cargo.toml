@@ -8,6 +8,8 @@ glutin = "*"
 cgmath = "*"
 dot_vox = "*"
 bitflags = "*"
+log = "*"
+time = "*"
 
 [dependencies.glium]
 git = "https://github.com/tomaka/glium.git"
