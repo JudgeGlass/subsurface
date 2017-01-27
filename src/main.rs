@@ -54,6 +54,7 @@ fn main() {
     let world = world::World::from_vox(data);
     voxrender.add_models(world.make_models(&display));
 
+    info!("Starting main loop");
     loop {
         let new_time = Instant::now();
         let elapsed = new_time.duration_since(reference_time);

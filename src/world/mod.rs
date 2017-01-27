@@ -58,6 +58,7 @@ fn origins() {
 
 impl World {
     pub fn from_vox(data: dot_vox::DotVoxData) -> World {
+        debug!("Loading world from MagicaVoxel data...");
         let mut world = World { chunks: HashMap::new() };
 
         for model in data.models.iter() {
