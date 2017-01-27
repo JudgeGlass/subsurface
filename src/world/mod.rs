@@ -3,7 +3,7 @@ use dot_vox;
 use std::collections::hash_map::HashMap;
 use prelude::*;
 use graphics;
-use glium;
+use gfx;
 
 type WorldPoint = Point3<i32>;
 type LocalPoint = Point3<u8>;
@@ -75,8 +75,9 @@ impl World {
         world
     }
 
-    pub fn make_models<F: glium::backend::Facade>(&self, facade: &F) -> Vec<graphics::Model> {
-        self.chunks.iter().map(|(_, chunk)| graphics::Model::new(facade, chunk)).collect()
+    pub fn make_models<R, F: gfx::traits::FactoryExt<R>>(&self, factory: &mut F) -> Vec<graphics::Model<R>>
+        where R: gfx::Resources {
+        self.chunks.iter().map(|(_, chunk)| graphics::Model::new(factory, chunk)).collect()
     }
 
     pub fn get_block(&self, loc: WorldPoint) -> Block {

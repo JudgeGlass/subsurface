@@ -4,12 +4,12 @@ version = "0.1.0"
 authors = ["Nitori- <nat1192@gmail.com>"]
 
 [dependencies]
-glutin = "*"
 cgmath = "*"
 dot_vox = "*"
 bitflags = "*"
 log = "*"
 time = "*"
 
-[dependencies.glium]
-git = "https://github.com/tomaka/glium.git"
+glutin = "*"
+gfx = "*"
+gfx_window_glutin = "*"

@@ -1,13 +1,14 @@
 #[macro_use]
 extern crate log;
-#[macro_use]
-extern crate glium;
 extern crate glutin;
 extern crate cgmath;
 extern crate dot_vox;
 #[macro_use]
 extern crate bitflags;
 extern crate time;
+#[macro_use]
+extern crate gfx;
+extern crate gfx_window_glutin;
 
 use std::time::Instant;
 use std::f32;
@@ -21,29 +22,24 @@ mod logger;
 use prelude::*;
 
 fn main() {
-    use glium::DisplayBuild;
-    use glium::Surface;
+    use gfx::Device;
 
     logger::init().unwrap();
 
-    let display = glutin::WindowBuilder::new()
+    let builder = glutin::WindowBuilder::new()
         .with_depth_buffer(24)
         .with_dimensions(1024, 768)
-        .with_title(format!("Hello world"))
-        .build_glium()
-        .unwrap();
+        .with_title(format!("Hello world"));
 
-    display.get_window()
-        .expect("Could not get window")
+    let (window, mut device, mut factory, main_color, main_depth) =
+        gfx_window_glutin::init::<gfx::format::Srgba8, gfx::format::DepthStencil>(builder);
+
+    window
         .set_cursor_state(glutin::CursorState::Grab)
         .unwrap();
 
-    if display.get_opengl_version() < &glium::Version(glium::Api::Gl, 3, 3) {
-        println!("Error: OpenGL 3.3 or later is required");
-        return;
-    }
-
-    let mut voxrender = graphics::Renderer::new(&display);
+    let mut voxrender = graphics::Renderer::new(&mut factory, main_color, main_depth);
+    let mut encoder: gfx::Encoder<_, _> = factory.create_command_buffer().into();
 
     let mut camera_frame_translator = vec3(0.0, 0.0, 0.0);
     let mut reference_time = Instant::now();
@@ -52,7 +48,7 @@ fn main() {
 
     let data = dot_vox::load("resources/menger.vox").unwrap();
     let world = world::World::from_vox(data);
-    voxrender.add_models(world.make_models(&display));
+    voxrender.add_models(world.make_models(&mut factory));
 
     info!("Starting main loop");
     loop {
@@ -65,7 +61,7 @@ fn main() {
             info!("Frame time {}", (delta * 1000.0) as u64);
         }
 
-        for command in display.poll_events().map(input::glutin_event_to_command) {
+        for command in window.poll_events().map(input::glutin_event_to_command) {
             match command {
                 input::Command::Exit => return,
                 input::Command::CameraTranslate(input::State::Start, ammount) => {
@@ -82,8 +78,7 @@ fn main() {
                     let relative = vec - vec2(500.0, 500.0);
                     voxrender.camera.look_around(0.01 * relative);
 
-                    display.get_window()
-                        .expect("Could not get window")
+                    window
                         .set_cursor_position(500, 500)
                         .unwrap();
                 }
@@ -93,13 +88,11 @@ fn main() {
 
         voxrender.camera.relative_translate(delta * 5.0 * camera_frame_translator);
 
+        voxrender.render(&mut encoder);
 
-        let mut target = display.draw();
-        target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
-
-        voxrender.render(&mut target);
-
-        target.finish().unwrap();
+        encoder.flush(&mut device);
+        window.swap_buffers().unwrap();
+        device.cleanup();
 
         cycler += 1;
     }
