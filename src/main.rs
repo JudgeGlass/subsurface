@@ -28,6 +28,7 @@ fn main() {
 
     let builder = glutin::WindowBuilder::new()
         .with_depth_buffer(24)
+        .with_stencil_buffer(8)
         .with_dimensions(1024, 768)
         .with_title(format!("Hello world"));
 

@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec4 position;
+in ivec4 position;
 in vec4 color;
 
 out vec4 vcolor;

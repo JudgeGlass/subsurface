@@ -79,7 +79,7 @@ impl<R: gfx::Resources> Renderer<R> {
             perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
 
         encoder.clear(&self.data.out_color, [0.1, 0.1, 0.1, 1.0]);
-        encoder.clear_depth(&self.data.out_depth_stencil, 0.0);
+        encoder.clear_depth(&self.data.out_depth_stencil, 1.0);
         encoder.clear_stencil(&self.data.out_depth_stencil, 0);
 
         for model in self.models.iter() {
