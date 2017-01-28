@@ -46,7 +46,8 @@ impl<R: gfx::Resources> Renderer<R> {
         let fragment_shader_src = include_bytes!("../../resources/fragment.glsl");
         let program = factory.link_program(vertex_shader_src, fragment_shader_src).unwrap();
         let mut rasterizer = gfx::state::Rasterizer::new_fill();
-        rasterizer.cull_face = gfx::state::CullFace::Nothing;
+        rasterizer.front_face = gfx::state::FrontFace::CounterClockwise;
+        rasterizer.cull_face = gfx::state::CullFace::Back;
         let pso = factory.create_pipeline_from_program(&program, gfx::Primitive::TriangleList,
                                                        rasterizer, pipe::new()).unwrap();
 
@@ -63,7 +64,7 @@ impl<R: gfx::Resources> Renderer<R> {
         Renderer {
             pso: pso,
             models: Vec::new(),
-            camera: Camera::new(point3(0.0, 7.0, 0.0), 0.0, 0.0),
+            camera: Camera::new(point3(-1.0, 7.0, -1.0), 0.0, 0.0),
             data: data,
         }
     }
@@ -73,12 +74,11 @@ impl<R: gfx::Resources> Renderer<R> {
     }
 
     pub fn render<C: gfx::CommandBuffer<R>>(&mut self, encoder: &mut gfx::Encoder<R, C>) {
-        //let (width, height) = frame.get_dimensions();
         let (width, height) = (1024, 768);
         let projection =
             perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
 
-        encoder.clear(&self.data.out_color, [0.1, 0.1, 0.1, 1.0]);
+        encoder.clear(&self.data.out_color, [0.0, 0.0, 0.0, 1.0]);
         encoder.clear_depth(&self.data.out_depth_stencil, 1.0);
         encoder.clear_stencil(&self.data.out_depth_stencil, 0);
 
