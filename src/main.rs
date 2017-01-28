@@ -47,7 +47,7 @@ fn main() {
 
     let mut cycler: u64 = 0;
 
-    let data = dot_vox::load("resources/menger.vox").unwrap();
+    let data = dot_vox::load("resources/monu16.vox").unwrap();
     let world = world::World::from_vox(data);
     voxrender.add_models(world.make_models(&mut factory));
 

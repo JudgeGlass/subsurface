@@ -2,7 +2,7 @@ use prelude::*;
 
 use cgmath::{Deg, perspective, SquareMatrix};
 use gfx;
-use gfx::format::U8Norm;
+use gfx::format::{U16Norm};
 
 use graphics::model::Model;
 use graphics::Camera;
@@ -10,8 +10,9 @@ use graphics::Camera;
 // If this is > 12 bytes, indexed drawing is has better space efficiency
 gfx_vertex_struct!{
     Vertex {
-        position: SVector4<u8> = "position",
-        color: SVector4<U8Norm> = "color",
+        position: [u8; 4] = "position",
+        color: Color = "color",
+        uv: [U16Norm; 2] = "uv",
     }
 }
 
@@ -52,7 +53,11 @@ impl<R: gfx::Resources> Renderer<R> {
                                                        rasterizer, pipe::new()).unwrap();
 
         let data = pipe::Data {
-            vbo: factory.create_vertex_buffer(&[Vertex { position: [0,0,0,0], color: [U8Norm(0),U8Norm(0),U8Norm(0),U8Norm(0)] }]),
+            vbo: factory.create_vertex_buffer(&[
+                Vertex {
+                    position: [0,0,0,0],
+                    color: [U8Norm(0),U8Norm(0),U8Norm(0),U8Norm(0)],
+                uv: [U16Norm(0), U16Norm(0)]}]),
             out_color: color_target,
             out_depth_stencil: depth_stencil_target,
 

@@ -2,6 +2,7 @@
 
 in ivec4 position;
 in vec4 color;
+in vec2 uv;
 
 out vec4 vcolor;
 

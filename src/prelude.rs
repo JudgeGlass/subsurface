@@ -1,9 +1,10 @@
 use cgmath;
 pub use cgmath::{Vector3, Vector2, Matrix4, Point3, vec3, vec2};
 
-pub type SVector3<I> = [I; 3];
-pub type SVector4<I> = [I; 4];
-pub type SMatrix4<I> = [[I; 4]; 4];
+pub use gfx::format::U8Norm;
+
+pub type TransformMatrix = [[f32; 4]; 4];
+pub type Color = [U8Norm; 4];
 
 #[inline]
 pub fn clamp<I: PartialOrd>(value: I, min: I, max: I) -> I {

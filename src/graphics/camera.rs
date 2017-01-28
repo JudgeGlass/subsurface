@@ -8,7 +8,7 @@ pub struct Camera {
     theta: f32,
     position: Point3<f32>,
 
-    view_matrix: SMatrix4<f32>,
+    view_matrix: TransformMatrix,
 }
 
 fn phi_theta_to_focus(phi: f32, theta: f32, position: Point3<f32>) -> Point3<f32> {
@@ -25,7 +25,7 @@ fn phi_theta_to_up(phi: f32, theta: f32) -> Vector3<f32> {
          theta_prime.sin() * phi.sin())
 }
 
-fn phi_theta_pos_to_matrix(phi: f32, theta: f32, position: Point3<f32>) -> SMatrix4<f32> {
+fn phi_theta_pos_to_matrix(phi: f32, theta: f32, position: Point3<f32>) -> TransformMatrix {
     Matrix4::look_at(position,
                      phi_theta_to_focus(phi, theta, position),
                      phi_theta_to_up(phi, theta))
@@ -62,7 +62,7 @@ impl Camera {
         self.recompute();
     }
 
-    pub fn get_view_matrix(&self) -> &SMatrix4<f32> {
+    pub fn get_view_matrix(&self) -> &TransformMatrix {
         &self.view_matrix
     }
 }
