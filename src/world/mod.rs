@@ -45,14 +45,17 @@ pub struct World {
 
 #[inline]
 fn find_chunk_origin(point: WorldPoint) -> WorldPoint {
-    point3(point.x & (-CHUNK_SIZE), point.y & (-CHUNK_SIZE), point.z & (-CHUNK_SIZE))
+    point3(point.x & (-CHUNK_SIZE),
+           point.y & (-CHUNK_SIZE),
+           point.z & (-CHUNK_SIZE))
 }
 
 #[test]
 fn origins() {
-    assert_eq!(find_chunk_origin(point3(0,0,0)), point3(0,0,0));
-    assert_eq!(find_chunk_origin(point3(4,4,5)), point3(0,0,0));
-    assert_eq!(find_chunk_origin(point3(-1,-1,-1)), point3(-CHUNK_SIZE,-CHUNK_SIZE,-CHUNK_SIZE));
+    assert_eq!(find_chunk_origin(point3(0, 0, 0)), point3(0, 0, 0));
+    assert_eq!(find_chunk_origin(point3(4, 4, 5)), point3(0, 0, 0));
+    assert_eq!(find_chunk_origin(point3(-1, -1, -1)),
+               point3(-CHUNK_SIZE, -CHUNK_SIZE, -CHUNK_SIZE));
 }
 
 
@@ -75,8 +78,11 @@ impl World {
         world
     }
 
-    pub fn make_models<R, F: gfx::traits::FactoryExt<R>>(&self, factory: &mut F) -> Vec<graphics::Model<R>>
-        where R: gfx::Resources {
+    pub fn make_models<R, F: gfx::traits::FactoryExt<R>>(&self,
+                                                         factory: &mut F)
+                                                         -> Vec<graphics::Model<R>>
+        where R: gfx::Resources
+    {
         self.chunks.iter().map(|(_, chunk)| graphics::Model::new(factory, chunk)).collect()
     }
 
@@ -208,8 +214,8 @@ impl Chunk {
         }
         assert!(self.is_loc_local(loc));
 
-        let index = (offset.x + offset.y * CHUNK_SIZE +
-                     offset.z * CHUNK_SIZE * CHUNK_SIZE) as usize;
+        let index = (offset.x + offset.y * CHUNK_SIZE + offset.z * CHUNK_SIZE * CHUNK_SIZE) as
+                    usize;
         assert!(index < self.blocks.len());
         index
     }

@@ -2,7 +2,7 @@ use prelude::*;
 
 use cgmath::{Deg, perspective, SquareMatrix};
 use gfx;
-use gfx::format::{U16Norm};
+use gfx::format::U16Norm;
 
 use graphics::model::Model;
 use graphics::Camera;
@@ -40,24 +40,31 @@ pub struct Renderer<R: gfx::Resources> {
 impl<R: gfx::Resources> Renderer<R> {
     pub fn new<F>(factory: &mut F,
                   color_target: gfx::handle::RenderTargetView<R, gfx::format::Srgba8>,
-                  depth_stencil_target: gfx::handle::DepthStencilView<R, (gfx::format::D24_S8, gfx::format::Unorm)>
-    ) -> Renderer<R>
-        where F: gfx::traits::FactoryExt<R>  {
+                  depth_stencil_target: gfx::handle::DepthStencilView<R,
+                                                                      (gfx::format::D24_S8,
+                                                                       gfx::format::Unorm)>)
+                  -> Renderer<R>
+        where F: gfx::traits::FactoryExt<R>
+    {
         let vertex_shader_src = include_bytes!("../../resources/vertex.glsl");
         let fragment_shader_src = include_bytes!("../../resources/fragment.glsl");
         let program = factory.link_program(vertex_shader_src, fragment_shader_src).unwrap();
         let mut rasterizer = gfx::state::Rasterizer::new_fill();
         rasterizer.front_face = gfx::state::FrontFace::CounterClockwise;
         rasterizer.cull_face = gfx::state::CullFace::Back;
-        let pso = factory.create_pipeline_from_program(&program, gfx::Primitive::TriangleList,
-                                                       rasterizer, pipe::new()).unwrap();
+        let pso = factory.create_pipeline_from_program(&program,
+                                          gfx::Primitive::TriangleList,
+                                          rasterizer,
+                                          pipe::new())
+            .unwrap();
 
         let data = pipe::Data {
-            vbo: factory.create_vertex_buffer(&[
-                Vertex {
-                    position: [0,0,0,0],
-                    color: [U8Norm(0),U8Norm(0),U8Norm(0),U8Norm(0)],
-                uv: [U16Norm(0), U16Norm(0)]}]),
+            vbo: factory.create_vertex_buffer(&[Vertex {
+                                                    position: [0, 0, 0, 0],
+                                                    color: [U8Norm(0), U8Norm(0), U8Norm(0),
+                                                            U8Norm(0)],
+                                                    uv: [U16Norm(0), U16Norm(0)],
+                                                }]),
             out_color: color_target,
             out_depth_stencil: depth_stencil_target,
 
@@ -80,8 +87,7 @@ impl<R: gfx::Resources> Renderer<R> {
 
     pub fn render<C: gfx::CommandBuffer<R>>(&mut self, encoder: &mut gfx::Encoder<R, C>) {
         let (width, height) = (1024, 768);
-        let projection =
-            perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
+        let projection = perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
 
         encoder.clear(&self.data.out_color, [0.0, 0.0, 0.0, 1.0]);
         encoder.clear_depth(&self.data.out_depth_stencil, 1.0);

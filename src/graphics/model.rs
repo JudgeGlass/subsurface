@@ -2,7 +2,7 @@ use prelude::*;
 
 use world;
 use gfx;
-use gfx::format::{U16Norm};
+use gfx::format::U16Norm;
 use super::renderer::Vertex;
 
 pub struct Model<R: gfx::Resources> {
@@ -33,9 +33,9 @@ impl<R: gfx::Resources> Model<R> {
                     if !block.is_empty() {
                         let color32 = block.id.0;
                         let color = U8Norm::cast4([(color32 & 0xFF) as u8,
-                                                 ((color32 >> 8) & 0xFF) as u8,
-                                                 ((color32 >> 16) & 0xFF) as u8,
-                                                 255 as u8]);
+                                                   ((color32 >> 8) & 0xFF) as u8,
+                                                   ((color32 >> 16) & 0xFF) as u8,
+                                                   255 as u8]);
 
                         if block.visibility.contains(world::VISIBLE_BOTTOM) {
                             make_bottom(loc, color, &mut verts);
@@ -74,7 +74,7 @@ impl<R: gfx::Resources> Model<R> {
 
 
 fn make_bottom(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color;//[255, 255, 255];
+    let mut c = color; //[255, 255, 255];
     darken(&mut c, 30);
     let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
              vnew(point3(origin.x, origin.y, origin.z), &c),
@@ -88,7 +88,7 @@ fn make_bottom(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
 }
 
 fn make_top(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let c = color;//[0, 0, 0];
+    let c = color; //[0, 0, 0];
     let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
              vnew(point3(origin.x, origin.y + 1, origin.z), &c),
@@ -101,7 +101,7 @@ fn make_top(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
 }
 
 fn make_back(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color;//[255, 0, 255];
+    let mut c = color; //[255, 0, 255];
     darken(&mut c, 10);
     let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
              vnew(point3(origin.x, origin.y + 1, origin.z), &c),
@@ -115,7 +115,7 @@ fn make_back(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
 }
 
 fn make_front(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color;//[0, 255, 0];
+    let mut c = color; //[0, 255, 0];
     darken(&mut c, 10);
     let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
@@ -129,7 +129,7 @@ fn make_front(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
 }
 
 fn make_left(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color;//[0, 255, 255];
+    let mut c = color; //[0, 255, 255];
     darken(&mut c, 5);
     let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
              vnew(point3(origin.x, origin.y, origin.z + 1), &c),
@@ -143,7 +143,7 @@ fn make_left(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
 }
 
 fn make_right(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color;//[255, 0, 0];
+    let mut c = color; //[255, 0, 0];
     darken(&mut c, 5);
     let v = [vnew(point3(origin.x + 1, origin.y, origin.z), &c),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),

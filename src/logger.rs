@@ -5,7 +5,7 @@ use std::sync::Mutex;
 use time;
 
 struct SimpleLogger {
-    f: Mutex<File>
+    f: Mutex<File>,
 }
 
 impl Log for SimpleLogger {
@@ -16,16 +16,19 @@ impl Log for SimpleLogger {
     fn log(&self, record: &LogRecord) {
         if self.enabled(record.metadata()) {
             let mut f = self.f.lock().unwrap();
-            write!(f, "{} {} - {}\n", time::strftime("%FT%TZ", &time::now_utc()).unwrap(), record.level(), record.args()).unwrap();
+            write!(f,
+                   "{} {} - {}\n",
+                   time::strftime("%FT%TZ", &time::now_utc()).unwrap(),
+                   record.level(),
+                   record.args())
+                .unwrap();
         }
     }
 }
 
 impl SimpleLogger {
     fn new() -> SimpleLogger {
-        SimpleLogger {
-            f: Mutex::new(File::create("subsurface.log").unwrap())
-        }
+        SimpleLogger { f: Mutex::new(File::create("subsurface.log").unwrap()) }
     }
 }
 

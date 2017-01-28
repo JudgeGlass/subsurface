@@ -35,8 +35,7 @@ fn main() {
     let (window, mut device, mut factory, main_color, main_depth) =
         gfx_window_glutin::init::<gfx::format::Srgba8, gfx::format::DepthStencil>(builder);
 
-    window
-        .set_cursor_state(glutin::CursorState::Grab)
+    window.set_cursor_state(glutin::CursorState::Grab)
         .unwrap();
 
     let mut voxrender = graphics::Renderer::new(&mut factory, main_color, main_depth);
@@ -79,8 +78,7 @@ fn main() {
                     let relative = vec - vec2(500.0, 500.0);
                     voxrender.camera.look_around(0.01 * relative);
 
-                    window
-                        .set_cursor_position(500, 500)
+                    window.set_cursor_position(500, 500)
                         .unwrap();
                 }
                 input::Command::Noop => (),
