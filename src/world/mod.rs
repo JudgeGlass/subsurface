@@ -64,8 +64,8 @@ impl World {
         debug!("Loading world from MagicaVoxel data...");
         let mut world = World { chunks: HashMap::new() };
 
-        for model in data.models.iter() {
-            for voxel in model.voxels.iter() {
+        for model in &data.models {
+            for voxel in &model.voxels {
                 let loc = point3(voxel.y as i32, voxel.z as i32, voxel.x as i32);
                 let color32 = data.pallete[voxel.i as usize];
 
@@ -95,7 +95,7 @@ impl World {
     }
 
     fn fix_visibility(&mut self) {
-        let chunk_keys: Vec<WorldPoint> = self.chunks.keys().map(|x| x.clone()).collect();
+        let chunk_keys: Vec<WorldPoint> = self.chunks.keys().cloned().collect();
         for chunk_key in chunk_keys {
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
@@ -169,12 +169,9 @@ impl World {
             None => Some(Chunk::new(chunk_origin)),
         };
 
-        match new_chunk {
-            Some(mut chunk) => {
-                chunk.set_block_immediate(loc, block);
-                self.chunks.insert(chunk_origin, chunk);
-            }
-            _ => (),
+        if let Some(mut chunk) = new_chunk {
+            chunk.set_block_immediate(loc, block);
+            self.chunks.insert(chunk_origin, chunk);
         }
     }
 }

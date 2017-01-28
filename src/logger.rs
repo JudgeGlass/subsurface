@@ -1,4 +1,4 @@
-use log::{LogRecord, LogLevel, LogMetadata, Log, set_logger, SetLoggerError, LogLevelFilter};
+use log::{LogRecord, LogMetadata, Log, set_logger, SetLoggerError, LogLevelFilter};
 use std::io::prelude::*;
 use std::fs::File;
 use std::sync::Mutex;
@@ -9,7 +9,7 @@ struct SimpleLogger {
 }
 
 impl Log for SimpleLogger {
-    fn enabled(&self, metadata: &LogMetadata) -> bool {
+    fn enabled(&self, _: &LogMetadata) -> bool {
         true
     }
 

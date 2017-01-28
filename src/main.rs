@@ -30,7 +30,7 @@ fn main() {
         .with_depth_buffer(24)
         .with_stencil_buffer(8)
         .with_dimensions(1024, 768)
-        .with_title(format!("Hello world"));
+        .with_title("Subsurface");
 
     let (window, mut device, mut factory, main_color, main_depth) =
         gfx_window_glutin::init::<gfx::format::Srgba8, gfx::format::DepthStencil>(builder);

@@ -56,7 +56,7 @@ impl Camera {
         self.phi += motion.x;
         self.theta += motion.y;
 
-        self.phi = self.phi % (2.0 * f32::consts::PI);
+        self.phi %= 2.0 * f32::consts::PI;
         self.theta = clamp(self.theta, 0.02, f32::consts::PI - 0.01);
 
         self.recompute();

@@ -93,7 +93,7 @@ impl<R: gfx::Resources> Renderer<R> {
         encoder.clear_depth(&self.data.out_depth_stencil, 1.0);
         encoder.clear_stencil(&self.data.out_depth_stencil, 0);
 
-        for model in self.models.iter() {
+        for model in &self.models {
             self.data.model = model.model;
             self.data.view = *self.camera.get_view_matrix();
             self.data.projection = projection;
