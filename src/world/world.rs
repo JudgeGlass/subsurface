@@ -8,10 +8,12 @@ use gfx;
 use super::WorldPoint;
 use super::chunk::{Chunk, CHUNK_SIZE};
 use super::block::*;
+use super::terrain::ChunkGenerator;
 
 pub struct World {
     chunks: HashMap<WorldPoint, Chunk>,
     world_root: PathBuf,
+    chunk_gen: Box<ChunkGenerator>,
 }
 
 
@@ -32,11 +34,12 @@ fn origins() {
 
 
 impl World {
-    pub fn from_vox(data: dot_vox::DotVoxData, world_root: &Path) -> World {
+    pub fn from_vox(data: dot_vox::DotVoxData, world_root: &Path, chunk_gen: Box<ChunkGenerator>) -> World {
         debug!("Loading world from MagicaVoxel data...");
         let mut world = World {
             chunks: HashMap::new(),
             world_root: world_root.into(),
+            chunk_gen: chunk_gen,
         };
 
         for model in &data.models {
@@ -54,12 +57,13 @@ impl World {
         world
     }
 
-    pub fn from_path(world_root: &Path, extents: (Vector3<i32>, Vector3<i32>)) -> World {
+    pub fn from_path(world_root: &Path, extents: (Vector3<i32>, Vector3<i32>), chunk_gen: Box<ChunkGenerator>) -> World {
         use num_iter::range_step;
 
         let mut world = World {
             chunks: HashMap::new(),
             world_root: world_root.into(),
+            chunk_gen: chunk_gen,
         };
         for x in range_step(extents.0.x, extents.1.x, CHUNK_SIZE) {
             for y in range_step(extents.0.y, extents.1.y, CHUNK_SIZE) {
@@ -77,7 +81,9 @@ impl World {
             Some(chunk) => {
                 self.chunks.insert(chunk_origin, chunk);
             }
-            None => (),
+            None => {
+                self.chunks.insert(chunk_origin, self.chunk_gen.generate_chunk(chunk_origin));
+            },
         }
     }
 

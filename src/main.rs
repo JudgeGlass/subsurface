@@ -69,15 +69,16 @@ fn main() {
     let mut cycler: u64 = 0;
 
     let world_path = Path::new(matches.value_of("world").unwrap());
+    let chunk_gen: Box<world::terrain::FlatGenerator> = Box::new(world::terrain::FlatGenerator::new(10, 0, world::block::BlockID(0xFF00FF)));
     let world = {
         match matches.value_of("vox") {
             Some(path) => {
                 let data = dot_vox::load(path).unwrap();
-                world::World::from_vox(data, &world_path)
+                world::World::from_vox(data, &world_path, chunk_gen)
             }
             None => {
                 world::World::from_path(&world_path,
-                                        (vec3(0, 0, 0), vec3(128, 128, 128)))
+                                        (vec3(0, 0, 0), vec3(128, 128, 128)), chunk_gen)
             }
         }
 

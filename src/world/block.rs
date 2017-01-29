@@ -32,6 +32,14 @@ impl Block {
     }
 
     #[inline]
+    pub fn from_id_only(id: BlockID) -> Block {
+        Block {
+            id: id,
+            visibility: VISIBLE_UNSET,
+        }
+    }
+
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.id == BlockID(0)
     }
