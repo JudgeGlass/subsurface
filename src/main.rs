@@ -37,15 +37,15 @@ fn main() {
         .version("0.1.0")
         .about("Rust voxel engine")
         .arg(Arg::with_name("world")
-             .help("Path to world directory to load")
-             .long("world")
-             .short("w")
-             .takes_value(true)
-             .default_value("test_world"))
+            .help("Path to world directory to load")
+            .long("world")
+            .short("w")
+            .takes_value(true)
+            .default_value("test_world"))
         .arg(Arg::with_name("vox")
-             .help("Load world from MagicaVoxel file")
-             .long("vox")
-             .takes_value(true))
+            .help("Load world from MagicaVoxel file")
+            .long("vox")
+            .takes_value(true))
         .get_matches();
 
     let builder = glutin::WindowBuilder::new()
@@ -69,7 +69,8 @@ fn main() {
     let mut cycler: u64 = 0;
 
     let world_path = Path::new(matches.value_of("world").unwrap());
-    let chunk_gen: Box<world::terrain::FlatGenerator> = Box::new(world::terrain::FlatGenerator::new(10, 0, world::block::BlockID(0xFF00FF)));
+    let chunk_gen: Box<world::terrain::FlatGenerator> =
+        Box::new(world::terrain::FlatGenerator::new(10, 0, "stone".into()));
     let world = {
         match matches.value_of("vox") {
             Some(path) => {
@@ -78,7 +79,8 @@ fn main() {
             }
             None => {
                 world::World::from_path(&world_path,
-                                        (vec3(0, 0, 0), vec3(128, 128, 128)), chunk_gen)
+                                        (vec3(0, 0, 0), vec3(128, 128, 128)),
+                                        chunk_gen)
             }
         }
 

@@ -22,3 +22,8 @@ pub fn clamp<I: PartialOrd>(value: I, min: I, max: I) -> I {
 pub fn point3<I: cgmath::BaseNum>(x: I, y: I, z: I) -> Point3<I> {
     Point3::new(x, y, z)
 }
+
+#[inline]
+pub fn color(r: u8, g: u8, b: u8) -> Color {
+    [U8Norm(r), U8Norm(g), U8Norm(b), U8Norm(255)]
+}

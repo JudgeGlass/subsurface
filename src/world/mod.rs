@@ -4,6 +4,7 @@ pub mod chunk;
 pub mod block;
 pub mod world;
 pub mod terrain;
+pub mod registry;
 
 type WorldPoint = Point3<i32>;
 type LocalPoint = Point3<u8>;

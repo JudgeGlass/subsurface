@@ -6,6 +6,7 @@ use super::renderer::Vertex;
 
 use world::chunk::{Chunk, CHUNK_SIZE};
 use world::block::*;
+use world::registry::Registry;
 
 pub struct Model<R: gfx::Resources> {
     pub vbo: gfx::handle::Buffer<R, Vertex>,
@@ -24,7 +25,10 @@ fn darken(color: &mut Color, amount: u8) {
 }
 
 impl<R: gfx::Resources> Model<R> {
-    pub fn new<F: gfx::traits::FactoryExt<R>>(factory: &mut F, chunk: &Chunk) -> Model<R> {
+    pub fn new<F: gfx::traits::FactoryExt<R>>(factory: &mut F,
+                                              chunk: &Chunk,
+                                              registry: &Registry)
+                                              -> Model<R> {
         let mut verts = Vec::new();
 
         for x in 0..CHUNK_SIZE as u8 {
@@ -33,11 +37,8 @@ impl<R: gfx::Resources> Model<R> {
                     let loc = point3(x, y, z);
                     let block = chunk.get_block_local(loc);
                     if !block.is_empty() {
-                        let color32 = block.id.0;
-                        let color = U8Norm::cast4([(color32 & 0xFF) as u8,
-                                                   ((color32 >> 8) & 0xFF) as u8,
-                                                   ((color32 >> 16) & 0xFF) as u8,
-                                                   255 as u8]);
+                        let color = registry.lookup_color(block.id)
+                            .expect("Could not find color for block id");
 
                         if block.visibility.contains(VISIBLE_BOTTOM) {
                             make_bottom(loc, color, &mut verts);

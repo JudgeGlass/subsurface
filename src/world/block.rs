@@ -1,4 +1,4 @@
-#[derive(Copy, Clone, PartialEq, Eq, RustcEncodable, RustcDecodable)]
+#[derive(Copy, Clone, PartialEq, Eq, RustcEncodable, RustcDecodable, Hash)]
 pub struct BlockID(pub u32);
 
 bitflags!(
