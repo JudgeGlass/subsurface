@@ -2,7 +2,7 @@ use log::{LogRecord, LogMetadata, Log, set_logger, SetLoggerError, LogLevelFilte
 use std::io::prelude::*;
 use std::fs::File;
 use std::sync::Mutex;
-use time;
+use chrono;
 
 struct SimpleLogger {
     f: Mutex<File>,
@@ -18,7 +18,7 @@ impl Log for SimpleLogger {
             let mut f = self.f.lock().unwrap();
             write!(f,
                    "{} {} - {}\n",
-                   time::strftime("%FT%TZ", &time::now_utc()).unwrap(),
+                   chrono::Local::now(),
                    record.level(),
                    record.args())
                 .unwrap();

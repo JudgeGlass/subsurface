@@ -5,7 +5,7 @@ extern crate cgmath;
 extern crate dot_vox;
 #[macro_use]
 extern crate bitflags;
-extern crate time;
+extern crate chrono;
 #[macro_use]
 extern crate gfx;
 extern crate gfx_window_glutin;
