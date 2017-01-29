@@ -12,6 +12,7 @@ extern crate gfx_window_glutin;
 extern crate rustc_serialize;
 extern crate bincode;
 extern crate num_iter;
+extern crate clap;
 
 use std::time::Instant;
 use std::f32;
@@ -25,10 +26,27 @@ mod logger;
 
 use prelude::*;
 
+use clap::{App, Arg};
+
 fn main() {
     use gfx::Device;
 
     logger::init().unwrap();
+
+    let matches = App::new("subsurface")
+        .version("0.1.0")
+        .about("Rust voxel engine")
+        .arg(Arg::with_name("world")
+             .help("Path to world directory to load")
+             .long("world")
+             .short("w")
+             .takes_value(true)
+             .default_value("test_world"))
+        .arg(Arg::with_name("vox")
+             .help("Load world from MagicaVoxel file")
+             .long("vox")
+             .takes_value(true))
+        .get_matches();
 
     let builder = glutin::WindowBuilder::new()
         .with_depth_buffer(24)
@@ -50,10 +68,21 @@ fn main() {
 
     let mut cycler: u64 = 0;
 
-    //let data = dot_vox::load("resources/monu16.vox").unwrap();
-    //let world = world::World::from_vox(data, &Path::new("test_world"));
-    let world = world::World::from_path(&Path::new("test_world"),
-                                        (vec3(0, 0, 0), vec3(128, 128, 128)));
+    let world_path = Path::new(matches.value_of("world").unwrap());
+    let world = {
+        match matches.value_of("vox") {
+            Some(path) => {
+                let data = dot_vox::load(path).unwrap();
+                world::World::from_vox(data, &world_path)
+            }
+            None => {
+                world::World::from_path(&world_path,
+                                        (vec3(0, 0, 0), vec3(128, 128, 128)))
+            }
+        }
+
+    };
+
     voxrender.add_models(world.make_models(&mut factory));
 
     info!("Starting main loop");
