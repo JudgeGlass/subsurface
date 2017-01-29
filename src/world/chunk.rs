@@ -1,5 +1,10 @@
+use std::path::{Path, PathBuf};
+
 use super::{WorldPoint, LocalPoint};
 use super::block::{Block, BlockID, VISIBLE_NONE};
+
+use bincode::SizeLimit;
+use bincode::rustc_serialize::{encode, decode};
 
 pub const CHUNK_SIZE: i32 = 16;
 
@@ -15,7 +20,48 @@ fn local_loc_to_array_index(loc: LocalPoint) -> usize {
 }
 
 
+fn origin_to_path(origin: WorldPoint, world_root: &Path) -> PathBuf {
+    world_root.join(origin.x.to_string())
+        .join(origin.y.to_string())
+        .join(origin.z.to_string())
+}
+
 impl Chunk {
+    pub fn write(&self, world_root: &Path) {
+        use std::io::Write;
+        use std::fs::File;
+        use std::fs::DirBuilder;
+
+        let path = origin_to_path(self.origin, world_root);
+        DirBuilder::new().recursive(true).create(path.clone()).unwrap();
+        let dest = path.join("chunk.bincode");
+        debug!("Writing chunk to {:?}", dest);
+        let encoded: Vec<u8> = encode(&self.blocks, SizeLimit::Infinite).unwrap();
+        File::create(dest).unwrap().write_all(encoded.as_slice()).unwrap();
+    }
+
+    pub fn read(origin: WorldPoint, world_root: &Path) -> Option<Chunk> {
+        use std::io::Read;
+        use std::fs::File;
+
+        let mut bytes = Vec::new();
+        let path = origin_to_path(origin, world_root).join("chunk.bincode");
+        debug!("Reading chunk from {:?}", path);
+        match File::open(path) {
+            Ok(mut file) => {
+                file.read_to_end(&mut bytes).unwrap();
+                Some(Chunk {
+                    blocks: decode(bytes.as_slice()).unwrap(),
+                    origin: origin,
+                })
+            }
+            Err(_) => {
+                debug!("Chunk was not found");
+                None
+            }
+        }
+    }
+
     pub fn new(origin: WorldPoint) -> Chunk {
         let mut ret = Chunk {
             blocks: Vec::with_capacity((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) as usize),

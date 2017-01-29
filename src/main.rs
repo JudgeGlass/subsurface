@@ -9,9 +9,13 @@ extern crate chrono;
 #[macro_use]
 extern crate gfx;
 extern crate gfx_window_glutin;
+extern crate rustc_serialize;
+extern crate bincode;
+extern crate num_iter;
 
 use std::time::Instant;
 use std::f32;
+use std::path::Path;
 
 mod graphics;
 mod input;
@@ -46,8 +50,10 @@ fn main() {
 
     let mut cycler: u64 = 0;
 
-    let data = dot_vox::load("resources/monu16.vox").unwrap();
-    let world = world::World::from_vox(data);
+    //let data = dot_vox::load("resources/monu16.vox").unwrap();
+    //let world = world::World::from_vox(data, &Path::new("test_world"));
+    let world = world::World::from_path(&Path::new("test_world"),
+                                        (vec3(0, 0, 0), vec3(128, 128, 128)));
     voxrender.add_models(world.make_models(&mut factory));
 
     info!("Starting main loop");

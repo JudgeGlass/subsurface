@@ -1,7 +1,8 @@
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, RustcEncodable, RustcDecodable)]
 pub struct BlockID(pub u32);
 
 bitflags!(
+    #[derive(RustcEncodable, RustcDecodable)]
     pub flags FaceVisibility: u8 {
         const VISIBLE_NONE   = 0b00000000,
         const VISIBLE_UNSET  = 0b11111111,
@@ -15,7 +16,7 @@ bitflags!(
     }
 );
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
 pub struct Block {
     pub id: BlockID,
     pub visibility: FaceVisibility,

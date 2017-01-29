@@ -1,4 +1,5 @@
 use std::collections::hash_map::HashMap;
+use std::path::{Path, PathBuf};
 use prelude::*;
 use dot_vox;
 use graphics;
@@ -10,6 +11,7 @@ use super::block::*;
 
 pub struct World {
     chunks: HashMap<WorldPoint, Chunk>,
+    world_root: PathBuf,
 }
 
 
@@ -30,9 +32,12 @@ fn origins() {
 
 
 impl World {
-    pub fn from_vox(data: dot_vox::DotVoxData) -> World {
+    pub fn from_vox(data: dot_vox::DotVoxData, world_root: &Path) -> World {
         debug!("Loading world from MagicaVoxel data...");
-        let mut world = World { chunks: HashMap::new() };
+        let mut world = World {
+            chunks: HashMap::new(),
+            world_root: world_root.into(),
+        };
 
         for model in &data.models {
             for voxel in &model.voxels {
@@ -44,8 +49,36 @@ impl World {
         }
 
         world.fix_visibility();
+        world.write_all_chunks();
 
         world
+    }
+
+    pub fn from_path(world_root: &Path, extents: (Vector3<i32>, Vector3<i32>)) -> World {
+        use num_iter::range_step;
+
+        let mut world = World {
+            chunks: HashMap::new(),
+            world_root: world_root.into(),
+        };
+        for x in range_step(extents.0.x, extents.1.x, CHUNK_SIZE) {
+            for y in range_step(extents.0.y, extents.1.y, CHUNK_SIZE) {
+                for z in range_step(extents.0.z, extents.1.z, CHUNK_SIZE) {
+                    world.load_chunk(point3(x, y, z));
+                }
+            }
+        }
+
+        world
+    }
+
+    fn load_chunk(&mut self, chunk_origin: WorldPoint) {
+        match Chunk::read(chunk_origin, &self.world_root) {
+            Some(chunk) => {
+                self.chunks.insert(chunk_origin, chunk);
+            }
+            None => (),
+        }
     }
 
     pub fn make_models<R, F: gfx::traits::FactoryExt<R>>(&self,
@@ -142,6 +175,12 @@ impl World {
         if let Some(mut chunk) = new_chunk {
             chunk.set_block_immediate(loc, block);
             self.chunks.insert(chunk_origin, chunk);
+        }
+    }
+
+    pub fn write_all_chunks(&self) {
+        for (_, chunk) in &self.chunks {
+            chunk.write(&self.world_root);
         }
     }
 }
