@@ -1,9 +1,11 @@
 use prelude::*;
 
-use world;
 use gfx;
 use gfx::format::U16Norm;
 use super::renderer::Vertex;
+
+use world::chunk::{Chunk, CHUNK_SIZE};
+use world::block::*;
 
 pub struct Model<R: gfx::Resources> {
     pub vbo: gfx::handle::Buffer<R, Vertex>,
@@ -22,12 +24,12 @@ fn darken(color: &mut Color, amount: u8) {
 }
 
 impl<R: gfx::Resources> Model<R> {
-    pub fn new<F: gfx::traits::FactoryExt<R>>(factory: &mut F, chunk: &world::Chunk) -> Model<R> {
+    pub fn new<F: gfx::traits::FactoryExt<R>>(factory: &mut F, chunk: &Chunk) -> Model<R> {
         let mut verts = Vec::new();
 
-        for x in 0..world::CHUNK_SIZE as u8 {
-            for y in 0..world::CHUNK_SIZE as u8 {
-                for z in 0..world::CHUNK_SIZE as u8 {
+        for x in 0..CHUNK_SIZE as u8 {
+            for y in 0..CHUNK_SIZE as u8 {
+                for z in 0..CHUNK_SIZE as u8 {
                     let loc = point3(x, y, z);
                     let block = chunk.get_block_local(loc);
                     if !block.is_empty() {
@@ -37,22 +39,22 @@ impl<R: gfx::Resources> Model<R> {
                                                    ((color32 >> 16) & 0xFF) as u8,
                                                    255 as u8]);
 
-                        if block.visibility.contains(world::VISIBLE_BOTTOM) {
+                        if block.visibility.contains(VISIBLE_BOTTOM) {
                             make_bottom(loc, color, &mut verts);
                         }
-                        if block.visibility.contains(world::VISIBLE_TOP) {
+                        if block.visibility.contains(VISIBLE_TOP) {
                             make_top(loc, color, &mut verts);
                         }
-                        if block.visibility.contains(world::VISIBLE_FRONT) {
+                        if block.visibility.contains(VISIBLE_FRONT) {
                             make_front(loc, color, &mut verts);
                         }
-                        if block.visibility.contains(world::VISIBLE_BACK) {
+                        if block.visibility.contains(VISIBLE_BACK) {
                             make_back(loc, color, &mut verts);
                         }
-                        if block.visibility.contains(world::VISIBLE_LEFT) {
+                        if block.visibility.contains(VISIBLE_LEFT) {
                             make_left(loc, color, &mut verts);
                         }
-                        if block.visibility.contains(world::VISIBLE_RIGHT) {
+                        if block.visibility.contains(VISIBLE_RIGHT) {
                             make_right(loc, color, &mut verts);
                         }
                     }
