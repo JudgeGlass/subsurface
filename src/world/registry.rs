@@ -5,20 +5,19 @@ use world::block::BlockID;
 
 pub struct Registry {
     ids_by_name: HashMap<String, BlockID>,
-    // TODO: UV map here instead
-    colors_by_id: HashMap<BlockID, Color>,
+    uvs_by_id: HashMap<BlockID, Point2<u8>>,
 }
 
 impl Registry {
     pub fn new() -> Registry {
         let mut ret = Registry {
             ids_by_name: HashMap::new(),
-            colors_by_id: HashMap::new(),
+            uvs_by_id: HashMap::new(),
         };
 
-        ret.register_block("stone".into(), BlockID(1), color(64, 64, 64));
-        ret.register_block("dirt".into(), BlockID(2), color(122, 48, 0));
-        ret.register_block("grass".into(), BlockID(2), color(0, 127, 14));
+        ret.register_block("stone".into(), BlockID(1), point2(2, 0));
+        ret.register_block("dirt".into(), BlockID(2), point2(0, 0));
+        ret.register_block("grass".into(), BlockID(3), point2(1, 0));
 
         ret
     }
@@ -30,15 +29,15 @@ impl Registry {
         }
     }
 
-    pub fn lookup_color(&self, id: BlockID) -> Option<Color> {
-        match self.colors_by_id.get(&id) {
-            Some(color) => Some(*color),
+    pub fn lookup_texture(&self, id: BlockID) -> Option<Point2<u8>> {
+        match self.uvs_by_id.get(&id) {
+            Some(uv) => Some(*uv),
             None => None,
         }
     }
 
-    pub fn register_block(&mut self, name: String, id: BlockID, color: Color) {
+    pub fn register_block(&mut self, name: String, id: BlockID, uv_origin: Point2<u8>) {
         self.ids_by_name.insert(name, id);
-        self.colors_by_id.insert(id, color);
+        self.uvs_by_id.insert(id, uv_origin);
     }
 }

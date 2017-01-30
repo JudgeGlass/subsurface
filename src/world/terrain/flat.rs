@@ -1,5 +1,5 @@
 use prelude::*;
-use world::block::{Block, BlockID};
+use world::block::Block;
 use world::chunk::{Chunk, CHUNK_SIZE};
 use world::WorldPoint;
 use world::registry::Registry;

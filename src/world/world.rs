@@ -106,6 +106,8 @@ impl World {
         self.chunks
             .iter()
             .map(|(_, chunk)| graphics::Model::new(factory, chunk, &self.registry))
+            .filter(|o| o.is_some())
+            .map(|o| o.unwrap())
             .collect()
     }
 

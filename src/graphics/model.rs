@@ -1,7 +1,6 @@
 use prelude::*;
 
 use gfx;
-use gfx::format::U16Norm;
 use super::renderer::Vertex;
 
 use world::chunk::{Chunk, CHUNK_SIZE};
@@ -14,21 +13,26 @@ pub struct Model<R: gfx::Resources> {
     pub model: TransformMatrix,
 }
 
-fn darken(color: &mut Color, amount: u8) {
-    for i in 0..3 {
-        color[i] = U8Norm(if amount <= color[i].0 {
-            color[i].0 - amount
-        } else {
-            0
-        })
-    }
-}
+// fn darken(color: &mut Color, amount: u8) {
+//     for i in 0..3 {
+//         color[i] = U8Norm(if amount <= color[i].0 {
+//             color[i].0 - amount
+//         } else {
+//             0
+//         })
+//     }
+// }
+
+const TEXTURE_SIZE: u16 = 64;
+const TEXTURE_NORMALIZER: u16 = (0x10000 / TEXTURE_SIZE as u32) as u16;
+const TEXEL_SIZE: u16 = 16;
+const TEXEL_NORMALIZER: u16 = TEXTURE_NORMALIZER * TEXEL_SIZE;
 
 impl<R: gfx::Resources> Model<R> {
     pub fn new<F: gfx::traits::FactoryExt<R>>(factory: &mut F,
                                               chunk: &Chunk,
                                               registry: &Registry)
-                                              -> Model<R> {
+                                              -> Option<Model<R>> {
         let mut verts = Vec::new();
 
         for x in 0..CHUNK_SIZE as u8 {
@@ -37,132 +41,157 @@ impl<R: gfx::Resources> Model<R> {
                     let loc = point3(x, y, z);
                     let block = chunk.get_block_local(loc);
                     if !block.is_empty() {
-                        let color = registry.lookup_color(block.id)
-                            .expect("Could not find color for block id");
+                        let texture = registry.lookup_texture(block.id)
+                            .expect("Could not find texture for block id");
+
+                        let true_texture = point2(texture.x as u16 * TEXEL_NORMALIZER,
+                                                  texture.y as u16 * TEXEL_NORMALIZER);
 
                         if block.visibility.contains(VISIBLE_BOTTOM) {
-                            make_bottom(loc, color, &mut verts);
+                            make_bottom(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_TOP) {
-                            make_top(loc, color, &mut verts);
+                            make_top(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_FRONT) {
-                            make_front(loc, color, &mut verts);
+                            make_front(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_BACK) {
-                            make_back(loc, color, &mut verts);
+                            make_back(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_LEFT) {
-                            make_left(loc, color, &mut verts);
+                            make_left(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_RIGHT) {
-                            make_right(loc, color, &mut verts);
+                            make_right(loc, true_texture, &mut verts);
                         }
                     }
                 }
             }
         }
 
-        let (vbo, slice) = factory.create_vertex_buffer_with_slice(verts.as_slice(), ());
-        Model {
-            vbo: vbo,
-            slice: slice,
-            model: Matrix4::from_translation(vec3(chunk.origin.x as f32,
-                                                  chunk.origin.y as f32,
-                                                  chunk.origin.z as f32))
-                .into(),
+        if verts.len() > 0 {
+            let (vbo, slice) = factory.create_vertex_buffer_with_slice(verts.as_slice(), ());
+            Some(Model {
+                vbo: vbo,
+                slice: slice,
+                model: Matrix4::from_translation(vec3(chunk.origin.x as f32,
+                                                      chunk.origin.y as f32,
+                                                      chunk.origin.z as f32))
+                    .into(),
+            })
+        } else {
+            None
         }
     }
 }
 
 
-fn make_bottom(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color; //[255, 255, 255];
-    darken(&mut c, 30);
-    let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
+fn make_bottom(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z + 1),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x, origin.y, origin.z), texture),
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
 
-             vnew(point3(origin.x, origin.y, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c)];
-
-    vert_out.extend_from_slice(&v);
-}
-
-fn make_top(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let c = color; //[0, 0, 0];
-    let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c),
-
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c)];
+             vnew(point3(origin.x, origin.y, origin.z), texture),
+             vnew(point3(origin.x + 1, origin.y, origin.z),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1))];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_back(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color; //[255, 0, 255];
-    darken(&mut c, 10);
-    let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z), &c),
+fn make_top(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x, origin.y + 1, origin.z), texture),
 
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z), &c)];
-
-    vert_out.extend_from_slice(&v);
-}
-
-fn make_front(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color; //[0, 255, 0];
-    darken(&mut c, 10);
-    let v = [vnew(point3(origin.x, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
-
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c)];
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x, origin.y + 1, origin.z), texture)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_left(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color; //[0, 255, 255];
-    darken(&mut c, 5);
-    let v = [vnew(point3(origin.x, origin.y, origin.z), &c),
-             vnew(point3(origin.x, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c),
+fn make_back(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z), texture),
+             vnew(point3(origin.x, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y, origin.z),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
 
-             vnew(point3(origin.x, origin.y, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x, origin.y + 1, origin.z), &c)];
-
-    vert_out.extend_from_slice(&v);
-}
-
-fn make_right(origin: Point3<u8>, color: Color, vert_out: &mut Vec<Vertex>) {
-    let mut c = color; //[255, 0, 0];
-    darken(&mut c, 5);
-    let v = [vnew(point3(origin.x + 1, origin.y, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c),
-
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z), &c),
-             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1), &c),
-             vnew(point3(origin.x + 1, origin.y, origin.z + 1), &c)];
+             vnew(point3(origin.x, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y, origin.z),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0))];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn vnew(position: Point3<u8>, color: &Color) -> Vertex {
+fn make_front(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z + 1), texture),
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x, origin.y + 1, origin.z + 1),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x, origin.y + 1, origin.z + 1),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1))];
+
+    vert_out.extend_from_slice(&v);
+}
+
+fn make_left(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z), texture),
+             vnew(point3(origin.x, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+
+             vnew(point3(origin.x, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+             vnew(point3(origin.x, origin.y + 1, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1))];
+
+    vert_out.extend_from_slice(&v);
+}
+
+fn make_right(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x + 1, origin.y, origin.z), texture),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+             vnew(point3(origin.x + 1, origin.y, origin.z + 1),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0))];
+
+    vert_out.extend_from_slice(&v);
+}
+
+fn vnew(position: Point3<u8>, texture: Point2<u16>) -> Vertex {
+    let uv = [U16Norm(texture.x), U16Norm(texture.y)];
+
     Vertex {
         position: [position.x, position.y, position.z, 1],
-        color: *color,
-        uv: [U16Norm(0), U16Norm(0)],
+        uv: uv,
     }
 }

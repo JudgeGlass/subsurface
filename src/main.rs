@@ -13,6 +13,7 @@ extern crate rustc_serialize;
 extern crate bincode;
 extern crate num_iter;
 extern crate clap;
+extern crate image;
 
 use std::time::Instant;
 use std::f32;
@@ -78,9 +79,7 @@ fn main() {
                 world::World::from_vox(data, &world_path, chunk_gen)
             }
             None => {
-                world::World::from_path(&world_path,
-                                        (vec3(0, 0, 0), vec3(128, 128, 128)),
-                                        chunk_gen)
+                world::World::from_path(&world_path, (vec3(0, 0, 0), vec3(64, 64, 64)), chunk_gen)
             }
         }
 

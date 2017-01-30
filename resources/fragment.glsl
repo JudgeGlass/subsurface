@@ -1,8 +1,10 @@
 #version 330 core
 
-in vec4 vcolor;
+smooth in vec2 vuv;
 out vec4 ocolor;
 
+uniform sampler2D block_texture;
+
 void main() {
-    ocolor = vcolor;
+     ocolor = texture(block_texture, vuv);
 }

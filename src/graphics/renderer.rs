@@ -2,7 +2,7 @@ use prelude::*;
 
 use cgmath::{Deg, perspective, SquareMatrix};
 use gfx;
-use gfx::format::U16Norm;
+use image;
 
 use graphics::model::Model;
 use graphics::Camera;
@@ -11,7 +11,6 @@ use graphics::Camera;
 gfx_vertex_struct!{
     Vertex {
         position: [u8; 4] = "position",
-        color: Color = "color",
         uv: [U16Norm; 2] = "uv",
     }
 }
@@ -26,6 +25,8 @@ gfx_pipeline!{
         model: gfx::Global<[[f32; 4]; 4]> = "model",
         view: gfx::Global<[[f32; 4]; 4]> = "view",
         projection: gfx::Global<[[f32; 4]; 4]> = "projection",
+
+        block_texture: gfx::TextureSampler<[f32; 4]> = "block_texture",
     }
 }
 
@@ -36,6 +37,22 @@ pub struct Renderer<R: gfx::Resources> {
     pub camera: Camera,
 }
 
+// Borrowed from a gfx example
+fn load_texture<R, F>(factory: &mut F,
+                      data: &[u8])
+                      -> Result<gfx::handle::ShaderResourceView<R, [f32; 4]>, String>
+    where R: gfx::Resources,
+          F: gfx::Factory<R>
+{
+    use std::io::Cursor;
+    use gfx::texture as t;
+    let img = image::load(Cursor::new(data), image::PNG).unwrap().to_rgba();
+    let (width, height) = img.dimensions();
+    let kind = t::Kind::D2(width as t::Size, height as t::Size, t::AaMode::Single);
+    let (_, view) = factory.create_texture_immutable_u8::<gfx::format::Srgba8>(kind, &[&img])
+        .unwrap();
+    Ok(view)
+}
 
 impl<R: gfx::Resources> Renderer<R> {
     pub fn new<F>(factory: &mut F,
@@ -58,11 +75,12 @@ impl<R: gfx::Resources> Renderer<R> {
                                           pipe::new())
             .unwrap();
 
+        let sampler_info = gfx::texture::SamplerInfo::new(gfx::texture::FilterMethod::Scale,
+                                                          gfx::texture::WrapMode::Clamp);
+
         let data = pipe::Data {
             vbo: factory.create_vertex_buffer(&[Vertex {
                                                     position: [0, 0, 0, 0],
-                                                    color: [U8Norm(0), U8Norm(0), U8Norm(0),
-                                                            U8Norm(0)],
                                                     uv: [U16Norm(0), U16Norm(0)],
                                                 }]),
             out_color: color_target,
@@ -71,6 +89,12 @@ impl<R: gfx::Resources> Renderer<R> {
             model: Matrix4::identity().into(),
             view: Matrix4::identity().into(),
             projection: Matrix4::identity().into(),
+
+            block_texture: (load_texture(factory,
+                                         &include_bytes!("../../resources/textures/blocks.png")
+                                              [..])
+                                .unwrap(),
+                            factory.create_sampler(sampler_info)),
         };
 
         Renderer {
