@@ -14,6 +14,7 @@ extern crate bincode;
 extern crate num_iter;
 extern crate clap;
 extern crate image;
+extern crate noise;
 
 use std::time::Instant;
 use std::f32;
@@ -70,8 +71,8 @@ fn main() {
     let mut cycler: u64 = 0;
 
     let world_path = Path::new(matches.value_of("world").unwrap());
-    let chunk_gen: Box<world::terrain::FlatGenerator> =
-        Box::new(world::terrain::FlatGenerator::new(10, 0, "stone".into()));
+    let chunk_gen: Box<world::terrain::SimplexGenerator> =
+        Box::new(world::terrain::SimplexGenerator::new(31, 1, "stone".into()));
     let world = {
         match matches.value_of("vox") {
             Some(path) => {
