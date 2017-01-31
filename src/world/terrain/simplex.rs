@@ -25,6 +25,7 @@ impl SimplexGenerator {
 }
 
 const FLAT_SCALING_FACTOR: f32 = 0.07;
+const HOLE_SCALING_FACTOR: f32 = 0.15;
 
 impl ChunkGenerator for SimplexGenerator {
     fn generate_chunk(&self, origin: WorldPoint, registry: &Registry) -> Chunk {
@@ -41,7 +42,7 @@ impl ChunkGenerator for SimplexGenerator {
                 let sampled_height = ((self.high - self.low) as f32 * sample_0_1) as i32 + self.low;
 
                 for y in origin.y..(origin.y + CHUNK_SIZE) {
-                    if y <= sampled_height {
+                    if y <= sampled_height && noise::open_simplex3(&self.seed, &[x as f32 * HOLE_SCALING_FACTOR, y as f32 * HOLE_SCALING_FACTOR, z as f32 * HOLE_SCALING_FACTOR]) < 0.25 {
                         let id = if y == sampled_height {
                             grass_id
                         } else if y <= sampled_height - 1 && y >= sampled_height - 3 {
