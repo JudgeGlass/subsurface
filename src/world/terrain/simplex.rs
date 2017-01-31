@@ -9,7 +9,6 @@ use noise;
 pub struct SimplexGenerator {
     high: i32,
     low: i32,
-    block: String,
 
     seed: noise::Seed,
 }
@@ -19,19 +18,20 @@ impl SimplexGenerator {
         SimplexGenerator {
             high: high,
             low: low,
-            block: block,
 
             seed: noise::Seed::new(87),
         }
     }
 }
 
-const FLAT_SCALING_FACTOR: f32 = 0.1;
+const FLAT_SCALING_FACTOR: f32 = 0.07;
 
 impl ChunkGenerator for SimplexGenerator {
     fn generate_chunk(&self, origin: WorldPoint, registry: &Registry) -> Chunk {
         let mut chunk = Chunk::new(origin);
-        let id = registry.lookup_id(&self.block).expect("Could not find block ID");
+        let grass_id = registry.lookup_id(&"grass".into()).expect("Could not find block ID");
+        let dirt_id = registry.lookup_id(&"dirt".into()).expect("Could not find block ID");
+        let stone_id = registry.lookup_id(&"stone".into()).expect("Could not find block ID");
 
 
         for x in origin.x..(origin.x + CHUNK_SIZE) {
@@ -42,6 +42,14 @@ impl ChunkGenerator for SimplexGenerator {
 
                 for y in origin.y..(origin.y + CHUNK_SIZE) {
                     if y <= sampled_height {
+                        let id = if y == sampled_height {
+                            grass_id
+                        } else if y <= sampled_height - 1 && y >= sampled_height - 3 {
+                            dirt_id
+                        } else {
+                            stone_id
+                        };
+
                         chunk.set_block_immediate(point3(x, y, z), Block::from_id_only(id));
                     }
                 }

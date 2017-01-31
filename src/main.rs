@@ -72,7 +72,7 @@ fn main() {
 
     let world_path = Path::new(matches.value_of("world").unwrap());
     let chunk_gen: Box<world::terrain::SimplexGenerator> =
-        Box::new(world::terrain::SimplexGenerator::new(31, 1, "stone".into()));
+        Box::new(world::terrain::SimplexGenerator::new(50, 1, "stone".into()));
     let world = {
         match matches.value_of("vox") {
             Some(path) => {

@@ -83,6 +83,7 @@ impl World {
             }
         }
 
+        world.fix_visibility();
         world
     }
 

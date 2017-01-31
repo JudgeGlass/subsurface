@@ -44,25 +44,34 @@ impl<R: gfx::Resources> Model<R> {
                         let texture = registry.lookup_texture(block.id)
                             .expect("Could not find texture for block id");
 
-                        let true_texture = point2(texture.x as u16 * TEXEL_NORMALIZER,
-                                                  texture.y as u16 * TEXEL_NORMALIZER);
-
                         if block.visibility.contains(VISIBLE_BOTTOM) {
+                            let true_texture = point2(texture.bottom.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.bottom.y as u16 * TEXEL_NORMALIZER);
                             make_bottom(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_TOP) {
+                            let true_texture = point2(texture.top.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.top.y as u16 * TEXEL_NORMALIZER);
                             make_top(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_FRONT) {
+                            let true_texture = point2(texture.front.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.front.y as u16 * TEXEL_NORMALIZER);
                             make_front(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_BACK) {
+                            let true_texture = point2(texture.back.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.back.y as u16 * TEXEL_NORMALIZER);
                             make_back(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_LEFT) {
+                            let true_texture = point2(texture.left.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.left.y as u16 * TEXEL_NORMALIZER);
                             make_left(loc, true_texture, &mut verts);
                         }
                         if block.visibility.contains(VISIBLE_RIGHT) {
+                            let true_texture = point2(texture.right.x as u16 * TEXEL_NORMALIZER,
+                                                      texture.right.y as u16 * TEXEL_NORMALIZER);
                             make_right(loc, true_texture, &mut verts);
                         }
                     }
