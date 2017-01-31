@@ -1,7 +1,7 @@
 use prelude::*;
 
 use std::collections::hash_map::HashMap;
-use world::block::{BlockID, Face};
+use world::block::BlockID;
 
 pub struct Registry {
     ids_by_name: HashMap<String, BlockID>,
@@ -40,14 +40,16 @@ impl Registry {
 
         ret.register_block("stone".into(), BlockID(1), BlockUV::one_face(point2(2, 0)));
         ret.register_block("dirt".into(), BlockID(2), BlockUV::one_face(point2(0, 0)));
-        ret.register_block("grass".into(), BlockID(3), BlockUV{
-            top: point2(1, 0),
-            bottom: point2(0, 0),
-            left: point2(3, 0),
-            right: point2(3, 0),
-            front: point2(3, 0),
-            back: point2(3, 0),
-        });
+        ret.register_block("grass".into(),
+                           BlockID(3),
+                           BlockUV {
+                               top: point2(1, 0),
+                               bottom: point2(0, 0),
+                               left: point2(3, 0),
+                               right: point2(3, 0),
+                               front: point2(3, 0),
+                               back: point2(3, 0),
+                           });
 
         ret
     }

@@ -14,7 +14,7 @@ pub struct SimplexGenerator {
 }
 
 impl SimplexGenerator {
-    pub fn new(high: i32, low: i32, block: String) -> SimplexGenerator {
+    pub fn new(high: i32, low: i32) -> SimplexGenerator {
         SimplexGenerator {
             high: high,
             low: low,
@@ -37,12 +37,19 @@ impl ChunkGenerator for SimplexGenerator {
 
         for x in origin.x..(origin.x + CHUNK_SIZE) {
             for z in origin.z..(origin.z + CHUNK_SIZE) {
-                let sample = noise::open_simplex2(&self.seed, &[x as f32 * FLAT_SCALING_FACTOR, z as f32 * FLAT_SCALING_FACTOR]);
+                let sample = noise::open_simplex2(&self.seed,
+                                                  &[x as f32 * FLAT_SCALING_FACTOR,
+                                                    z as f32 * FLAT_SCALING_FACTOR]);
                 let sample_0_1 = (sample + 1.0) / 2.0;
                 let sampled_height = ((self.high - self.low) as f32 * sample_0_1) as i32 + self.low;
 
                 for y in origin.y..(origin.y + CHUNK_SIZE) {
-                    if y <= sampled_height && noise::open_simplex3(&self.seed, &[x as f32 * HOLE_SCALING_FACTOR, y as f32 * HOLE_SCALING_FACTOR, z as f32 * HOLE_SCALING_FACTOR]) < 0.25 {
+                    if y <= sampled_height &&
+                       noise::open_simplex3(&self.seed,
+                                            &[x as f32 * HOLE_SCALING_FACTOR,
+                                              y as f32 * HOLE_SCALING_FACTOR,
+                                              z as f32 * HOLE_SCALING_FACTOR]) <
+                       0.25 {
                         let id = if y == sampled_height {
                             grass_id
                         } else if y <= sampled_height - 1 && y >= sampled_height - 3 {

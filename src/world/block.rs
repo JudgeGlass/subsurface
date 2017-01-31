@@ -44,12 +44,3 @@ impl Block {
         self.id == BlockID(0)
     }
 }
-
-pub enum Face {
-    Top,
-    Bottom,
-    Left,
-    Right,
-    Front,
-    Back,
-}
