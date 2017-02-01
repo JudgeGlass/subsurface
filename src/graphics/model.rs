@@ -44,35 +44,34 @@ impl<R: gfx::Resources> Model<R> {
                         let texture = registry.lookup_texture(block.id)
                             .expect("Could not find texture for block id");
 
-                        if block.visibility.contains(VISIBLE_BOTTOM) {
-                            let true_texture = point2(texture.bottom.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.bottom.y as u16 * TEXEL_NORMALIZER);
-                            make_bottom(loc, true_texture, &mut verts);
-                        }
-                        if block.visibility.contains(VISIBLE_TOP) {
-                            let true_texture = point2(texture.top.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.top.y as u16 * TEXEL_NORMALIZER);
-                            make_top(loc, true_texture, &mut verts);
-                        }
-                        if block.visibility.contains(VISIBLE_FRONT) {
-                            let true_texture = point2(texture.front.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.front.y as u16 * TEXEL_NORMALIZER);
-                            make_front(loc, true_texture, &mut verts);
-                        }
-                        if block.visibility.contains(VISIBLE_BACK) {
-                            let true_texture = point2(texture.back.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.back.y as u16 * TEXEL_NORMALIZER);
-                            make_back(loc, true_texture, &mut verts);
-                        }
-                        if block.visibility.contains(VISIBLE_LEFT) {
-                            let true_texture = point2(texture.left.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.left.y as u16 * TEXEL_NORMALIZER);
-                            make_left(loc, true_texture, &mut verts);
-                        }
-                        if block.visibility.contains(VISIBLE_RIGHT) {
-                            let true_texture = point2(texture.right.x as u16 * TEXEL_NORMALIZER,
-                                                      texture.right.y as u16 * TEXEL_NORMALIZER);
-                            make_right(loc, true_texture, &mut verts);
+                        for face in Face::iter() {
+                            if block.is_visible(*face) {
+                                let face_texture = texture.get_face(*face);
+                                let true_texture = point2(face_texture.x as u16 * TEXEL_NORMALIZER,
+                                                          face_texture.y as u16 * TEXEL_NORMALIZER);
+
+                                let light = block.face_light(*face);
+                                match *face {
+                                    Face::Bottom => {
+                                        make_bottom(loc, true_texture, light, &mut verts);
+                                    }
+                                    Face::Top => {
+                                        make_top(loc, true_texture, light, &mut verts);
+                                    }
+                                    Face::Left => {
+                                        make_left(loc, true_texture, light, &mut verts);
+                                    }
+                                    Face::Right => {
+                                        make_right(loc, true_texture, light, &mut verts);
+                                    }
+                                    Face::Front => {
+                                        make_front(loc, true_texture, light, &mut verts);
+                                    }
+                                    Face::Back => {
+                                        make_back(loc, true_texture, light, &mut verts);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -96,107 +95,153 @@ impl<R: gfx::Resources> Model<R> {
 }
 
 
-fn make_bottom(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+fn make_bottom(origin: Point3<u8>,
+               texture: Point2<u16>,
+               light: BlockLightLevel,
+               vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y, origin.z + 1),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
-             vnew(point3(origin.x, origin.y, origin.z), texture),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
+             vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
 
-             vnew(point3(origin.x, origin.y, origin.z), texture),
+             vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x + 1, origin.y, origin.z),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1))];
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_top(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
+fn make_top(origin: Point3<u8>,
+            texture: Point2<u16>,
+            light: BlockLightLevel,
+            vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
-             vnew(point3(origin.x, origin.y + 1, origin.z), texture),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
+             vnew(point3(origin.x, origin.y + 1, origin.z), texture, light),
 
              vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
-             vnew(point3(origin.x, origin.y + 1, origin.z), texture)];
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
+             vnew(point3(origin.x, origin.y + 1, origin.z), texture, light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_back(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
-    let v = [vnew(point3(origin.x, origin.y, origin.z), texture),
+fn make_back(origin: Point3<u8>,
+             texture: Point2<u16>,
+             light: BlockLightLevel,
+             vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y, origin.z),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
 
              vnew(point3(origin.x, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y, origin.z),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0))];
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_front(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
-    let v = [vnew(point3(origin.x, origin.y, origin.z + 1), texture),
+fn make_front(origin: Point3<u8>,
+              texture: Point2<u16>,
+              light: BlockLightLevel,
+              vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z + 1), texture, light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
              vnew(point3(origin.x, origin.y + 1, origin.z + 1),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
 
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x, origin.y + 1, origin.z + 1),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1))];
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_left(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
-    let v = [vnew(point3(origin.x, origin.y, origin.z), texture),
+fn make_left(origin: Point3<u8>,
+             texture: Point2<u16>,
+             light: BlockLightLevel,
+             vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
              vnew(point3(origin.x, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
 
              vnew(point3(origin.x, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
              vnew(point3(origin.x, origin.y + 1, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1))];
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn make_right(origin: Point3<u8>, texture: Point2<u16>, vert_out: &mut Vec<Vertex>) {
-    let v = [vnew(point3(origin.x + 1, origin.y, origin.z), texture),
+fn make_right(origin: Point3<u8>,
+              texture: Point2<u16>,
+              light: BlockLightLevel,
+              vert_out: &mut Vec<Vertex>) {
+    let v = [vnew(point3(origin.x + 1, origin.y, origin.z), texture, light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light),
 
              vnew(point3(origin.x + 1, origin.y + 1, origin.z),
-                  texture + vec2(0, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(0, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1)),
+                  texture + vec2(TEXEL_NORMALIZER - 1, TEXEL_NORMALIZER - 1),
+                  light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
-                  texture + vec2(TEXEL_NORMALIZER - 1, 0))];
+                  texture + vec2(TEXEL_NORMALIZER - 1, 0),
+                  light)];
 
     vert_out.extend_from_slice(&v);
 }
 
-fn vnew(position: Point3<u8>, texture: Point2<u16>) -> Vertex {
+fn vnew(position: Point3<u8>, texture: Point2<u16>, light: BlockLightLevel) -> Vertex {
     let uv = [U16Norm(texture.x), U16Norm(texture.y)];
 
     Vertex {

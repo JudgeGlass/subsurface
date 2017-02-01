@@ -176,10 +176,7 @@ impl World {
                             };
 
                             self.set_block_immediate(current_loc,
-                                                     Block {
-                                                         id: current_block.id,
-                                                         visibility: visibility,
-                                                     });
+                                                     Block::from_id(current_block.id, visibility));
                         }
                     }
                 }

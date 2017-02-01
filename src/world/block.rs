@@ -1,3 +1,5 @@
+use std;
+
 #[derive(Copy, Clone, PartialEq, Eq, RustcEncodable, RustcDecodable, Hash)]
 pub struct BlockID(pub u32);
 
@@ -16,10 +18,67 @@ bitflags!(
     }
 );
 
+#[derive(Copy, Clone)]
+pub enum Face {
+    Top,
+    Bottom,
+    Left,
+    Right,
+    Front,
+    Back,
+}
+
+static FACE_LIST: [Face; 6] =
+    [Face::Top, Face::Bottom, Face::Left, Face::Right, Face::Front, Face::Back];
+
+#[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
+pub struct LightLevel(u8);
+
+#[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
+pub struct SunLightLevel(u8);
+
+pub type BlockLightLevel = (SunLightLevel, LightLevel);
+
+#[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
+pub struct FaceLightLevels {
+    levels: [BlockLightLevel; 6],
+}
+
+#[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
+pub enum LightKind {
+    Source(BlockLightLevel),
+    Solid(FaceLightLevels),
+}
+
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
 pub struct Block {
     pub id: BlockID,
     pub visibility: FaceVisibility,
+    pub light: LightKind,
+}
+
+impl LightKind {
+    pub fn source(sun: u8, block: u8) -> LightKind {
+        LightKind::Source((SunLightLevel(sun), LightLevel(block)))
+    }
+}
+
+impl Face {
+    pub fn to_index(&self) -> usize {
+        match *self {
+            Face::Top => 0,
+            Face::Bottom => 1,
+            Face::Left => 2,
+            Face::Right => 3,
+            Face::Front => 4,
+            Face::Back => 5,
+        }
+    }
+
+    #[inline]
+    pub fn iter() -> std::slice::Iter<'static, Face> {
+        FACE_LIST.iter()
+    }
 }
 
 impl Block {
@@ -28,6 +87,7 @@ impl Block {
         Block {
             id: id,
             visibility: visibility,
+            light: LightKind::source(0, 0),
         }
     }
 
@@ -36,11 +96,32 @@ impl Block {
         Block {
             id: id,
             visibility: VISIBLE_UNSET,
+            light: LightKind::source(0, 0),
         }
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.id == BlockID(0)
+    }
+
+    #[inline]
+    pub fn face_light(&self, face: Face) -> BlockLightLevel {
+        match self.light {
+            LightKind::Source(light) => light,
+            LightKind::Solid(lights) => lights.levels[face.to_index()],
+        }
+    }
+
+    #[inline]
+    pub fn is_visible(&self, face: Face) -> bool {
+        match face {
+            Face::Top => self.visibility.contains(VISIBLE_TOP),
+            Face::Bottom => self.visibility.contains(VISIBLE_BOTTOM),
+            Face::Left => self.visibility.contains(VISIBLE_LEFT),
+            Face::Right => self.visibility.contains(VISIBLE_RIGHT),
+            Face::Front => self.visibility.contains(VISIBLE_FRONT),
+            Face::Back => self.visibility.contains(VISIBLE_BACK),
+        }
     }
 }

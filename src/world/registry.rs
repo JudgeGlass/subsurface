@@ -1,7 +1,7 @@
 use prelude::*;
 
 use std::collections::hash_map::HashMap;
-use world::block::BlockID;
+use world::block::{BlockID, Face};
 
 pub struct Registry {
     ids_by_name: HashMap<String, BlockID>,
@@ -10,24 +10,16 @@ pub struct Registry {
 
 #[derive(Clone, Copy)]
 pub struct BlockUV {
-    pub top: Point2<u8>,
-    pub bottom: Point2<u8>,
-    pub left: Point2<u8>,
-    pub right: Point2<u8>,
-    pub front: Point2<u8>,
-    pub back: Point2<u8>,
+    uvs: [Point2<u8>; 6],
 }
 
 impl BlockUV {
     pub fn one_face(uv_origin: Point2<u8>) -> BlockUV {
-        BlockUV {
-            top: uv_origin,
-            bottom: uv_origin,
-            left: uv_origin,
-            right: uv_origin,
-            front: uv_origin,
-            back: uv_origin,
-        }
+        BlockUV { uvs: [uv_origin, uv_origin, uv_origin, uv_origin, uv_origin, uv_origin] }
+    }
+
+    pub fn get_face(&self, face: Face) -> Point2<u8> {
+        self.uvs[face.to_index()]
     }
 }
 
@@ -43,12 +35,12 @@ impl Registry {
         ret.register_block("grass".into(),
                            BlockID(3),
                            BlockUV {
-                               top: point2(1, 0),
-                               bottom: point2(0, 0),
-                               left: point2(3, 0),
-                               right: point2(3, 0),
-                               front: point2(3, 0),
-                               back: point2(3, 0),
+                               uvs: [point2(1, 0),
+                                     point2(0, 0),
+                                     point2(3, 0),
+                                     point2(3, 0),
+                                     point2(3, 0),
+                                     point2(3, 0)],
                            });
 
         ret
