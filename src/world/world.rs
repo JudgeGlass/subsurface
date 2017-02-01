@@ -76,7 +76,9 @@ impl World {
             registry: Registry::new(),
         };
         for x in range_step(extents.0.x, extents.1.x, CHUNK_SIZE) {
-            for y in range_step(extents.0.y, extents.1.y, CHUNK_SIZE) {
+            for y in range_step(extents.1.y - CHUNK_SIZE,
+                                extents.0.y - CHUNK_SIZE,
+                                -CHUNK_SIZE) {
                 for z in range_step(extents.0.z, extents.1.z, CHUNK_SIZE) {
                     world.load_chunk(point3(x, y, z));
                 }
