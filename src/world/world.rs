@@ -18,6 +18,7 @@ pub struct World {
     pub registry: Registry,
 }
 
+const WORLD_HEIGHT: i32 = 64;
 
 #[inline]
 fn find_chunk_origin(point: WorldPoint) -> WorldPoint {
@@ -143,8 +144,9 @@ impl World {
                         };
                     }
 
-                    let light = LightKind::source((current_loc.z.abs() % 16) as u8,
-                                                  (current_loc.x.abs() % 16) as u8);
+                    // let light = LightKind::source((current_loc.z.abs() % 16) as u8,
+                    //                               (current_loc.x.abs() % 16) as u8);
+                    let light = LightKind::source(15, 15);
                     let block = Block::from_id(current_block.id, visibility, light);
                     self.set_block_immediate(current_loc, block);
                 }

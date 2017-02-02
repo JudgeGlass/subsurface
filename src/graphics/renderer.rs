@@ -100,7 +100,7 @@ impl<R: gfx::Resources> Renderer<R> {
         Renderer {
             pso: pso,
             models: Vec::new(),
-            camera: Camera::new(point3(-1.0, 7.0, -1.0), 0.0, 0.0),
+            camera: Camera::new(point3(-1.0, 40.0, -1.0), 0.0, 0.0),
             data: data,
         }
     }

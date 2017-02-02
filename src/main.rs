@@ -81,10 +81,9 @@ fn main() {
                 world::World::from_vox(data, &world_path, chunk_gen)
             }
             None => {
-                world::World::from_path(&world_path, (vec3(0, 0, 0), vec3(64, 64, 64)), chunk_gen)
+                world::World::from_path(&world_path, (vec3(-64, 0, -64), vec3(64, 64, 64)), chunk_gen)
             }
         }
-
     };
 
     voxrender.add_models(world.make_models(&mut factory));
