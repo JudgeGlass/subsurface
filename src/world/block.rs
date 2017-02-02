@@ -1,4 +1,5 @@
 use std;
+use prelude::*;
 
 #[derive(Copy, Clone, PartialEq, Eq, RustcEncodable, RustcDecodable, Hash)]
 pub struct BlockID(pub u32);
@@ -78,6 +79,30 @@ impl Face {
     #[inline]
     pub fn iter() -> std::slice::Iter<'static, Face> {
         FACE_LIST.iter()
+    }
+
+    #[inline]
+    pub fn to_visible_mask(&self) -> FaceVisibility {
+        match *self {
+            Face::Top => VISIBLE_TOP,
+            Face::Bottom => VISIBLE_BOTTOM,
+            Face::Left => VISIBLE_LEFT,
+            Face::Right => VISIBLE_RIGHT,
+            Face::Front => VISIBLE_FRONT,
+            Face::Back => VISIBLE_BACK,
+        }
+    }
+
+    #[inline]
+    pub fn normal(&self) -> Vector3<i32> {
+        match *self {
+            Face::Top => vec3(0, 1, 0),
+            Face::Bottom => vec3(0, -1, 0),
+            Face::Left => vec3(-1, 0, 0),
+            Face::Right => vec3(1,0,0),
+            Face::Front => vec3(0, 0, 1),
+            Face::Back => vec3(0, 0, -1),
+        }
     }
 }
 

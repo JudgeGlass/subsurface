@@ -133,47 +133,14 @@ impl World {
                         if !current_block.is_empty() {
                             let mut visibility = VISIBLE_NONE;
 
-                            visibility |= if self.get_block(current_loc + vec3(0, 1, 0))
-                                .is_empty() {
-                                VISIBLE_TOP
-                            } else {
-                                VISIBLE_NONE
-                            };
-
-                            visibility |= if self.get_block(current_loc + vec3(0, -1, 0))
-                                .is_empty() {
-                                VISIBLE_BOTTOM
-                            } else {
-                                VISIBLE_NONE
-                            };
-
-                            visibility |= if self.get_block(current_loc + vec3(1, 0, 0))
-                                .is_empty() {
-                                VISIBLE_RIGHT
-                            } else {
-                                VISIBLE_NONE
-                            };
-
-                            visibility |= if self.get_block(current_loc + vec3(-1, 0, 0))
-                                .is_empty() {
-                                VISIBLE_LEFT
-                            } else {
-                                VISIBLE_NONE
-                            };
-
-                            visibility |= if self.get_block(current_loc + vec3(0, 0, 1))
-                                .is_empty() {
-                                VISIBLE_FRONT
-                            } else {
-                                VISIBLE_NONE
-                            };
-
-                            visibility |= if self.get_block(current_loc + vec3(0, 0, -1))
-                                .is_empty() {
-                                VISIBLE_BACK
-                            } else {
-                                VISIBLE_NONE
-                            };
+                            for face in Face::iter() {
+                                visibility |= if self.get_block(current_loc + face.normal())
+                                    .is_empty() {
+                                        face.to_visible_mask()
+                                    } else {
+                                        VISIBLE_NONE
+                                    };
+                            }
 
                             self.set_block_immediate(current_loc,
                                                      Block::from_id(current_block.id, visibility));
