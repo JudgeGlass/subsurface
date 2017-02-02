@@ -3,7 +3,7 @@ use prelude::*;
 use gfx;
 use super::renderer::Vertex;
 
-use world::chunk::{Chunk, CHUNK_SIZE};
+use world::chunk::Chunk;
 use world::block::*;
 use world::registry::Registry;
 
@@ -35,42 +35,37 @@ impl<R: gfx::Resources> Model<R> {
                                               -> Option<Model<R>> {
         let mut verts = Vec::new();
 
-        for x in 0..CHUNK_SIZE as u8 {
-            for y in 0..CHUNK_SIZE as u8 {
-                for z in 0..CHUNK_SIZE as u8 {
-                    let loc = point3(x, y, z);
-                    let block = chunk.get_block_local(loc);
-                    if !block.is_empty() {
-                        let texture = registry.lookup_texture(block.id)
-                            .expect("Could not find texture for block id");
+        for loc in chunk.iter() {
+            let block = chunk.get_block_local(loc);
+            if !block.is_empty() {
+                let texture = registry.lookup_texture(block.id)
+                    .expect("Could not find texture for block id");
 
-                        for face in Face::iter() {
-                            if block.is_visible(*face) {
-                                let face_texture = texture.get_face(*face);
-                                let true_texture = point2(face_texture.x as u16 * TEXEL_NORMALIZER,
-                                                          face_texture.y as u16 * TEXEL_NORMALIZER);
+                for face in Face::iter() {
+                    if block.is_visible(*face) {
+                        let face_texture = texture.get_face(*face);
+                        let true_texture = point2(face_texture.x as u16 * TEXEL_NORMALIZER,
+                                                  face_texture.y as u16 * TEXEL_NORMALIZER);
 
-                                let light = block.face_light(*face);
-                                match *face {
-                                    Face::Bottom => {
-                                        make_bottom(loc, true_texture, light, &mut verts);
-                                    }
-                                    Face::Top => {
-                                        make_top(loc, true_texture, light, &mut verts);
-                                    }
-                                    Face::Left => {
-                                        make_left(loc, true_texture, light, &mut verts);
-                                    }
-                                    Face::Right => {
-                                        make_right(loc, true_texture, light, &mut verts);
-                                    }
-                                    Face::Front => {
-                                        make_front(loc, true_texture, light, &mut verts);
-                                    }
-                                    Face::Back => {
-                                        make_back(loc, true_texture, light, &mut verts);
-                                    }
-                                }
+                        let light = block.face_light(*face);
+                        match *face {
+                            Face::Bottom => {
+                                make_bottom(loc, true_texture, light, &mut verts);
+                            }
+                            Face::Top => {
+                                make_top(loc, true_texture, light, &mut verts);
+                            }
+                            Face::Left => {
+                                make_left(loc, true_texture, light, &mut verts);
+                            }
+                            Face::Right => {
+                                make_right(loc, true_texture, light, &mut verts);
+                            }
+                            Face::Front => {
+                                make_front(loc, true_texture, light, &mut verts);
+                            }
+                            Face::Back => {
+                                make_back(loc, true_texture, light, &mut verts);
                             }
                         }
                     }

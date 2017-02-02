@@ -6,7 +6,7 @@ use graphics;
 use gfx;
 
 use super::WorldPoint;
-use super::chunk::{Chunk, CHUNK_SIZE};
+use super::chunk::{Chunk, CHUNK_SIZE, CHUNK_EXTENTS_LESS_ONE};
 use super::block::*;
 use super::terrain::ChunkGenerator;
 use super::registry::Registry;
@@ -128,31 +128,25 @@ impl World {
     fn fix_visibility(&mut self) {
         let chunk_keys: Vec<WorldPoint> = self.chunks.keys().cloned().collect();
         for chunk_key in chunk_keys {
-            for x in 0..CHUNK_SIZE {
-                for y in 0..CHUNK_SIZE {
-                    for z in 0..CHUNK_SIZE {
-                        let current_loc = chunk_key + vec3(x, y, z);
-                        let current_block = self.get_block(current_loc);
-                        if !current_block.is_empty() {
-                            let mut visibility = VISIBLE_NONE;
+            for current_loc in super::RegionIter::new(chunk_key,
+                                                      chunk_key + CHUNK_EXTENTS_LESS_ONE) {
+                let current_block = self.get_block(current_loc);
+                if !current_block.is_empty() {
+                    let mut visibility = VISIBLE_NONE;
 
-                            for face in Face::iter() {
-                                visibility |= if self.get_block(current_loc + face.normal())
-                                    .is_empty() {
-                                    face.to_visible_mask()
-                                } else {
-                                    VISIBLE_NONE
-                                };
-                            }
-
-                            let block =
-                                Block::from_id(current_block.id,
-                                               visibility,
-                                               LightKind::source((current_loc.z.abs() % 16) as u8,
-                                                                 (current_loc.x.abs() % 16) as u8));
-                            self.set_block_immediate(current_loc, block);
-                        }
+                    for face in Face::iter() {
+                        visibility |= if self.get_block(current_loc + face.normal())
+                            .is_empty() {
+                            face.to_visible_mask()
+                        } else {
+                            VISIBLE_NONE
+                        };
                     }
+
+                    let light = LightKind::source((current_loc.z.abs() % 16) as u8,
+                                                  (current_loc.x.abs() % 16) as u8);
+                    let block = Block::from_id(current_block.id, visibility, light);
+                    self.set_block_immediate(current_loc, block);
                 }
             }
         }

@@ -15,6 +15,7 @@ extern crate num_iter;
 extern crate clap;
 extern crate image;
 extern crate noise;
+extern crate num;
 
 use std::time::Instant;
 use std::f32;

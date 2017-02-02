@@ -1,8 +1,8 @@
-use prelude::*;
 use world::block::Block;
-use world::chunk::{Chunk, CHUNK_SIZE};
+use world::chunk::{Chunk, CHUNK_EXTENTS_LESS_ONE};
 use world::WorldPoint;
 use world::registry::Registry;
+use world::RegionIter;
 use super::ChunkGenerator;
 
 pub struct FlatGenerator {
@@ -26,13 +26,9 @@ impl ChunkGenerator for FlatGenerator {
         let mut chunk = Chunk::new(origin);
         let id = registry.lookup_id(&self.block).expect("Could not find block ID");
 
-        for y in origin.y..(origin.y + CHUNK_SIZE) {
-            if y <= self.high && y >= self.low {
-                for x in origin.x..(origin.x + CHUNK_SIZE) {
-                    for z in origin.z..(origin.z + CHUNK_SIZE) {
-                        chunk.set_block_immediate(point3(x, y, z), Block::from_id_only(id));
-                    }
-                }
+        for loc in RegionIter::new(origin, origin + CHUNK_EXTENTS_LESS_ONE) {
+            if loc.y <= self.high && loc.y >= self.low {
+                chunk.set_block_immediate(loc, Block::from_id_only(id));
             }
         }
 

@@ -1,3 +1,5 @@
+use prelude::*;
+
 use std::path::{Path, PathBuf};
 
 use super::{WorldPoint, LocalPoint};
@@ -7,6 +9,11 @@ use bincode::SizeLimit;
 use bincode::rustc_serialize::{encode, decode};
 
 pub const CHUNK_SIZE: i32 = 16;
+pub const CHUNK_EXTENTS_LESS_ONE: Vector3<i32> = Vector3 {
+    x: CHUNK_SIZE - 1,
+    y: CHUNK_SIZE - 1,
+    z: CHUNK_SIZE - 1,
+};
 
 pub struct Chunk {
     blocks: Vec<Block>,
@@ -104,5 +111,12 @@ impl Chunk {
     pub fn get_block_local(&self, loc: LocalPoint) -> Block {
         let index = local_loc_to_array_index(loc);
         self.blocks[index]
+    }
+
+    pub fn iter(&self) -> super::LocalIter {
+        super::LocalIter::new(point3(0, 0, 0),
+                              point3(CHUNK_SIZE as u8 - 1,
+                                     CHUNK_SIZE as u8 - 1,
+                                     CHUNK_SIZE as u8 - 1))
     }
 }
