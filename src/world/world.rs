@@ -53,7 +53,10 @@ impl World {
                 let loc = point3(voxel.y as i32, voxel.z as i32, voxel.x as i32);
                 let color32 = data.pallete[voxel.i as usize];
 
-                world.set_block_immediate(loc, Block::from_id(BlockID(color32), VISIBLE_NONE));
+                world.set_block_immediate(loc,
+                                          Block::from_id(BlockID(color32),
+                                                         VISIBLE_NONE,
+                                                         LightKind::source(0, 0)));
             }
         }
 
@@ -118,7 +121,7 @@ impl World {
         let chunk_origin = find_chunk_origin(loc);
         match self.chunks.get(&chunk_origin) {
             Some(chunk) => chunk.get_block(loc),
-            None => Block::from_id(BlockID(0), VISIBLE_NONE),
+            None => Block::from_id(BlockID(0), VISIBLE_NONE, SOLID_NO_LIGHT),
         }
     }
 
@@ -142,8 +145,12 @@ impl World {
                                 };
                             }
 
-                            self.set_block_immediate(current_loc,
-                                                     Block::from_id(current_block.id, visibility));
+                            let block =
+                                Block::from_id(current_block.id,
+                                               visibility,
+                                               LightKind::source((current_loc.z.abs() % 16) as u8,
+                                                                 (current_loc.x.abs() % 16) as u8));
+                            self.set_block_immediate(current_loc, block);
                         }
                     }
                 }

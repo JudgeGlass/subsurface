@@ -97,7 +97,7 @@ impl<R: gfx::Resources> Model<R> {
 
 fn make_bottom(origin: Point3<u8>,
                texture: Point2<u16>,
-               light: BlockLightLevel,
+               light: TotalLightLevel,
                vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y, origin.z + 1),
                   texture + vec2(0, TEXEL_NORMALIZER - 1),
@@ -120,7 +120,7 @@ fn make_bottom(origin: Point3<u8>,
 
 fn make_top(origin: Point3<u8>,
             texture: Point2<u16>,
-            light: BlockLightLevel,
+            light: TotalLightLevel,
             vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y + 1, origin.z + 1),
                   texture + vec2(0, TEXEL_NORMALIZER - 1),
@@ -143,7 +143,7 @@ fn make_top(origin: Point3<u8>,
 
 fn make_back(origin: Point3<u8>,
              texture: Point2<u16>,
-             light: BlockLightLevel,
+             light: TotalLightLevel,
              vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x, origin.y + 1, origin.z),
@@ -168,7 +168,7 @@ fn make_back(origin: Point3<u8>,
 
 fn make_front(origin: Point3<u8>,
               texture: Point2<u16>,
-              light: BlockLightLevel,
+              light: TotalLightLevel,
               vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y, origin.z + 1), texture, light),
              vnew(point3(origin.x + 1, origin.y, origin.z + 1),
@@ -193,7 +193,7 @@ fn make_front(origin: Point3<u8>,
 
 fn make_left(origin: Point3<u8>,
              texture: Point2<u16>,
-             light: BlockLightLevel,
+             light: TotalLightLevel,
              vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x, origin.y, origin.z), texture, light),
              vnew(point3(origin.x, origin.y, origin.z + 1),
@@ -218,7 +218,7 @@ fn make_left(origin: Point3<u8>,
 
 fn make_right(origin: Point3<u8>,
               texture: Point2<u16>,
-              light: BlockLightLevel,
+              light: TotalLightLevel,
               vert_out: &mut Vec<Vertex>) {
     let v = [vnew(point3(origin.x + 1, origin.y, origin.z), texture, light),
              vnew(point3(origin.x + 1, origin.y + 1, origin.z),
@@ -241,11 +241,12 @@ fn make_right(origin: Point3<u8>,
     vert_out.extend_from_slice(&v);
 }
 
-fn vnew(position: Point3<u8>, texture: Point2<u16>, light: BlockLightLevel) -> Vertex {
+fn vnew(position: Point3<u8>, texture: Point2<u16>, light: TotalLightLevel) -> Vertex {
     let uv = [U16Norm(texture.x), U16Norm(texture.y)];
+    let light_val = (((light.0).0 & 0b1111) << 4) | ((light.1).0 & 0b1111);
 
     Vertex {
-        position: [position.x, position.y, position.z, 1],
+        position: [position.x, position.y, position.z, light_val],
         uv: uv,
     }
 }

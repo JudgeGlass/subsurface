@@ -33,23 +33,26 @@ static FACE_LIST: [Face; 6] =
     [Face::Top, Face::Bottom, Face::Left, Face::Right, Face::Front, Face::Back];
 
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
-pub struct LightLevel(u8);
+pub struct LightLevel(pub u8);
 
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
-pub struct SunLightLevel(u8);
+pub struct SunLightLevel(pub u8);
 
-pub type BlockLightLevel = (SunLightLevel, LightLevel);
+pub type TotalLightLevel = (SunLightLevel, LightLevel);
 
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
 pub struct FaceLightLevels {
-    levels: [BlockLightLevel; 6],
+    levels: [TotalLightLevel; 6],
 }
 
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
 pub enum LightKind {
-    Source(BlockLightLevel),
+    Source(TotalLightLevel),
     Solid(FaceLightLevels),
 }
+
+pub const SOLID_NO_LIGHT: LightKind =
+    LightKind::Solid(FaceLightLevels { levels: [(SunLightLevel(0), LightLevel(0)); 6] });
 
 #[derive(Copy, Clone, RustcEncodable, RustcDecodable)]
 pub struct Block {
@@ -108,11 +111,11 @@ impl Face {
 
 impl Block {
     #[inline]
-    pub fn from_id(id: BlockID, visibility: FaceVisibility) -> Block {
+    pub fn from_id(id: BlockID, visibility: FaceVisibility, light: LightKind) -> Block {
         Block {
             id: id,
             visibility: visibility,
-            light: LightKind::source(0, 0),
+            light: light,
         }
     }
 
@@ -131,7 +134,7 @@ impl Block {
     }
 
     #[inline]
-    pub fn face_light(&self, face: Face) -> BlockLightLevel {
+    pub fn face_light(&self, face: Face) -> TotalLightLevel {
         match self.light {
             LightKind::Source(light) => light,
             LightKind::Solid(lights) => lights.levels[face.to_index()],

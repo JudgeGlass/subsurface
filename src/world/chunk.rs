@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use super::{WorldPoint, LocalPoint};
-use super::block::{Block, BlockID, VISIBLE_NONE};
+use super::block::{Block, BlockID, VISIBLE_NONE, SOLID_NO_LIGHT};
 
 use bincode::SizeLimit;
 use bincode::rustc_serialize::{encode, decode};
@@ -68,7 +68,7 @@ impl Chunk {
             origin: origin,
         };
         ret.blocks.resize((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) as usize,
-                          Block::from_id(BlockID(0), VISIBLE_NONE));
+                          Block::from_id(BlockID(0), VISIBLE_NONE, SOLID_NO_LIGHT));
         ret
     }
 
