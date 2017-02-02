@@ -136,10 +136,10 @@ impl World {
                             for face in Face::iter() {
                                 visibility |= if self.get_block(current_loc + face.normal())
                                     .is_empty() {
-                                        face.to_visible_mask()
-                                    } else {
-                                        VISIBLE_NONE
-                                    };
+                                    face.to_visible_mask()
+                                } else {
+                                    VISIBLE_NONE
+                                };
                             }
 
                             self.set_block_immediate(current_loc,

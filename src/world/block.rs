@@ -99,7 +99,7 @@ impl Face {
             Face::Top => vec3(0, 1, 0),
             Face::Bottom => vec3(0, -1, 0),
             Face::Left => vec3(-1, 0, 0),
-            Face::Right => vec3(1,0,0),
+            Face::Right => vec3(1, 0, 0),
             Face::Front => vec3(0, 0, 1),
             Face::Back => vec3(0, 0, -1),
         }
