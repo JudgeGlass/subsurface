@@ -35,6 +35,7 @@ pub struct Renderer<R: gfx::Resources> {
     models: Vec<Model<R>>,
     data: pipe::Data<R>,
     pub camera: Camera,
+    pub projection: [[f32; 4]; 4],
 }
 
 // Borrowed from a gfx example
@@ -102,6 +103,7 @@ impl<R: gfx::Resources> Renderer<R> {
             models: Vec::new(),
             camera: Camera::new(point3(-1.0, 40.0, -1.0), 0.0, 0.0),
             data: data,
+            projection: perspective(Deg(90.0), 1024 as f32 / 768 as f32, 0.1, 1000.0).into(),
         }
     }
 
@@ -110,9 +112,6 @@ impl<R: gfx::Resources> Renderer<R> {
     }
 
     pub fn render<C: gfx::CommandBuffer<R>>(&mut self, encoder: &mut gfx::Encoder<R, C>) {
-        let (width, height) = (1024, 768);
-        let projection = perspective(Deg(90.0), width as f32 / height as f32, 0.1, 1000.0).into();
-
         encoder.clear(&self.data.out_color, [0.0, 0.0, 0.0, 1.0]);
         encoder.clear_depth(&self.data.out_depth_stencil, 1.0);
         encoder.clear_stencil(&self.data.out_depth_stencil, 0);
@@ -120,7 +119,7 @@ impl<R: gfx::Resources> Renderer<R> {
         for model in &self.models {
             self.data.model = model.model;
             self.data.view = *self.camera.get_view_matrix();
-            self.data.projection = projection;
+            self.data.projection = self.projection;
             self.data.vbo = model.vbo.clone();
 
             encoder.draw(&model.slice, &self.pso, &self.data);

@@ -4,9 +4,9 @@ use prelude::*;
 use std::f32;
 
 pub struct Camera {
-    phi: f32,
-    theta: f32,
-    position: Point3<f32>,
+    pub phi: f32,
+    pub theta: f32,
+    pub position: Point3<f32>,
 
     view_matrix: TransformMatrix,
 }

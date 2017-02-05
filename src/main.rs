@@ -17,6 +17,9 @@ extern crate image;
 extern crate noise;
 extern crate num;
 
+extern crate gfx_debug_draw;
+extern crate gfx_text;
+
 use std::time::Instant;
 use std::f32;
 use std::path::Path;
@@ -63,7 +66,8 @@ fn main() {
     window.set_cursor_state(glutin::CursorState::Grab)
         .unwrap();
 
-    let mut voxrender = graphics::Renderer::new(&mut factory, main_color, main_depth);
+    let mut voxrender =
+        graphics::Renderer::new(&mut factory, main_color.clone(), main_depth.clone());
     let mut encoder: gfx::Encoder<_, _> = factory.create_command_buffer().into();
 
     let mut camera_frame_translator = vec3(0.0, 0.0, 0.0);
@@ -81,12 +85,19 @@ fn main() {
                 world::World::from_vox(data, &world_path, chunk_gen)
             }
             None => {
-                world::World::from_path(&world_path, (vec3(-64, 0, -64), vec3(64, 64, 64)), chunk_gen)
+                world::World::from_path(&world_path,
+                                        (vec3(-64, 0, -64), vec3(64, 64, 64)),
+                                        chunk_gen)
             }
         }
     };
 
     voxrender.add_models(world.make_models(&mut factory));
+
+
+    let text_renderer = gfx_text::new(factory.clone()).unwrap();
+    let mut debug_renderer = gfx_debug_draw::DebugRenderer::new(factory.clone(), text_renderer, 64)
+        .unwrap();
 
     info!("Starting main loop");
     loop {
@@ -124,8 +135,24 @@ fn main() {
         }
 
         voxrender.camera.relative_translate(delta * 5.0 * camera_frame_translator);
+        debug_renderer.draw_text_on_screen(&format!("Camera {:?}", voxrender.camera.position),
+                                           [0, 0],
+                                           [1.0, 1.0, 1.0, 1.0]);
+        debug_renderer.draw_text_on_screen(&format!("Phi: {} Theta: {}",
+                                                    voxrender.camera.phi,
+                                                    voxrender.camera.theta),
+                                           [0, 20],
+                                           [1.0, 1.0, 1.0, 1.0]);
 
         voxrender.render(&mut encoder);
+
+        debug_renderer.render(&mut encoder,
+                    &main_color,
+                    &main_depth,
+                    (Matrix4::from(voxrender.projection) *
+                     Matrix4::from(*voxrender.camera.get_view_matrix()))
+                        .into())
+            .unwrap();
 
         encoder.flush(&mut device);
         window.swap_buffers().unwrap();

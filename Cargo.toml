@@ -10,8 +10,8 @@ bitflags = "*"
 log = "*"
 chrono = "*"
 glutin = "*"
-gfx = { git = "https://github.com/Nitori-/gfx", branch = "short-attribs" }
-gfx_window_glutin = { git = "https://github.com/Nitori-/gfx", branch = "short-attribs" }
+gfx = { git = "https://github.com/gfx-rs/gfx" }
+gfx_window_glutin = { git = "https://github.com/gfx-rs/gfx" }
 rustc-serialize = "*"
 bincode = "*"
 num-iter = "*"
@@ -19,6 +19,8 @@ clap = "*"
 image = "*"
 noise = "*"
 num = "*"
+gfx_debug_draw = { git = "https://github.com/Nitori-/gfx_debug_draw", branch = "line-target" }
+gfx_text = "*"
 
 [replace]
-"gfx_device_gl:0.13.0" = { git = "https://github.com/Nitori-/gfx", branch = "short-attribs" }
+"gfx:0.14.0" = { git = "https://github.com/gfx-rs/gfx" }
