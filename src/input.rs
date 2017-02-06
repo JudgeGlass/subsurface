@@ -1,4 +1,4 @@
-use glutin::{Event, ElementState, VirtualKeyCode};
+use glutin::{Event, ElementState, VirtualKeyCode, MouseButton};
 use cgmath::{Vector3, vec3, Vector2, vec2};
 
 pub enum Command {
@@ -6,6 +6,7 @@ pub enum Command {
     Exit,
     CameraTranslate(State, Vector3<f32>),
     CameraLook(Vector2<f32>),
+    Place,
 }
 
 pub enum State {
@@ -18,6 +19,7 @@ pub fn glutin_event_to_command(event: Event) -> Command {
         Event::Closed => Command::Exit,
         Event::KeyboardInput(state, _, key) => glutin_key_to_command(state, key),
         Event::MouseMoved(x, y) => Command::CameraLook(vec2(x as f32, y as f32)),
+        Event::MouseInput(ElementState::Pressed, MouseButton::Right) => Command::Place,
         _ => Command::Noop,
     }
 }

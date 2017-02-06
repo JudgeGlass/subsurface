@@ -18,8 +18,6 @@ pub struct World {
     pub registry: Registry,
 }
 
-const WORLD_HEIGHT: i32 = 64;
-
 #[inline]
 fn find_chunk_origin(point: WorldPoint) -> WorldPoint {
     point3(point.x & (-CHUNK_SIZE),
@@ -175,4 +173,65 @@ impl World {
             chunk.write(&self.world_root);
         }
     }
+
+    pub fn cast_ray(&self,
+                    origin: Point3<f32>,
+                    direction: Vector3<f32>)
+                    -> Option<(WorldPoint, Face)> {
+        use num::signum;
+        use cgmath::prelude::*;
+
+        let mut origin_vox = point3(origin.x as i32, origin.y as i32, origin.z as i32);
+        let step = vec3(signum(direction.x),
+                        signum(direction.y),
+                        signum(direction.z));
+        let mut max = point3(distance_from_edge(origin.x, direction.x),
+                             distance_from_edge(origin.y, direction.y),
+                             distance_from_edge(origin.z, direction.z));
+        let delta = step.div_element_wise(direction);
+
+        loop {
+            let normal = if max.x < max.y && max.x < max.z {
+                if max.x.abs() > direction.x.abs() {
+                    break;
+                }
+
+                origin_vox.x += step.x as i32;
+                max.x += delta.x;
+                point3(-step.x as i32, 0, 0)
+            } else if max.y < max.x && max.y < max.z {
+                if max.y.abs() > direction.y.abs() {
+                    break;
+                }
+
+                origin_vox.y += step.y as i32;
+                max.y += delta.y;
+                point3(0, -step.y as i32, 0)
+            } else {
+                assert!(max.z < max.x && max.z < max.y);
+                if max.z.abs() > direction.z.abs() {
+                    break;
+                }
+
+                origin_vox.z += step.z as i32;
+                max.z += delta.z;
+                point3(0, 0, -step.z as i32)
+            };
+
+            let block = self.get_block(origin_vox);
+            if !block.is_empty() {
+                return Some((origin_vox, Face::from_normal(normal)));
+            }
+        }
+
+        None
+    }
+}
+
+fn distance_from_edge(value: f32, direction: f32) -> f32 {
+    (if direction > 0.0 {
+        value.ceil() - value
+    } else {
+        value - value.floor()
+    }) / direction.abs()
 }

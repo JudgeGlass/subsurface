@@ -19,7 +19,7 @@ bitflags!(
     }
 );
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum Face {
     Top,
     Bottom,
@@ -68,6 +68,24 @@ impl LightKind {
 }
 
 impl Face {
+    pub fn from_normal(normal: Point3<i32>) -> Face {
+        if normal.x > 0 {
+            Face::Right
+        } else if normal.x < 0 {
+            Face::Left
+        } else if normal.y > 0 {
+            Face::Top
+        } else if normal.y < 0 {
+            Face::Bottom
+        } else if normal.z > 0 {
+            Face::Front
+        } else if normal.z < 0 {
+            Face::Back
+        } else {
+            panic!("Normal is invalid {:?}", normal);
+        }
+    }
+
     pub fn to_index(&self) -> usize {
         match *self {
             Face::Top => 0,

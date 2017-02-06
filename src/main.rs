@@ -24,6 +24,8 @@ use std::time::Instant;
 use std::f32;
 use std::path::Path;
 
+use cgmath::prelude::*;
+
 mod graphics;
 mod input;
 mod prelude;
@@ -129,6 +131,12 @@ fn main() {
 
                     window.set_cursor_position(500, 500)
                         .unwrap();
+                }
+                input::Command::Place => {
+                    let direction = (voxrender.camera.look_at - voxrender.camera.position)
+                        .normalize();
+                    println!("Raycast result {:?}",
+                             world.cast_ray(voxrender.camera.position, 20.0 * direction));
                 }
                 input::Command::Noop => (),
             }
