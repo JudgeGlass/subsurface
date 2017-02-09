@@ -80,7 +80,7 @@ fn main() {
     let world_path = Path::new(matches.value_of("world").unwrap());
     let chunk_gen: Box<world::terrain::SimplexGenerator> =
         Box::new(world::terrain::SimplexGenerator::new(50, 1));
-    let world = {
+    let mut world = {
         match matches.value_of("vox") {
             Some(path) => {
                 let data = dot_vox::load(path).unwrap();
@@ -94,7 +94,7 @@ fn main() {
         }
     };
 
-    voxrender.add_models(world.make_models(&mut factory));
+    voxrender.set_models(world.make_models(&mut factory));
 
 
     let text_renderer = gfx_text::new(factory.clone()).unwrap();
@@ -135,8 +135,14 @@ fn main() {
                 input::Command::Place => {
                     let direction = (voxrender.camera.look_at - voxrender.camera.position)
                         .normalize();
-                    println!("Raycast result {:?}",
-                             world.cast_ray(voxrender.camera.position, 20.0 * direction));
+                    let casted = world.cast_ray(voxrender.camera.position, 20.0 * direction);
+                    println!("Raycast result {:?}", casted);
+
+                    if let Some((loc, face)) = casted {
+                        let id = world.registry.lookup_id(&"stone".into()).unwrap();
+                        world.place_block(loc + face.normal(), id);
+                        voxrender.set_models(world.make_models(&mut factory));
+                    }
                 }
                 input::Command::Noop => (),
             }

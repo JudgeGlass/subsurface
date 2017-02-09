@@ -86,6 +86,19 @@ impl Face {
         }
     }
 
+    // This could also probably be done by negating the normal, but
+    // that seems ugly.
+    pub fn opposite(&self) -> Face {
+        match *self {
+            Face::Top => Face::Bottom,
+            Face::Bottom => Face::Top,
+            Face::Left => Face::Right,
+            Face::Right => Face::Left,
+            Face::Front => Face::Front,
+            Face::Back => Face::Back,
+        }
+    }
+
     pub fn to_index(&self) -> usize {
         match *self {
             Face::Top => 0,

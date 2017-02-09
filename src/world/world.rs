@@ -168,6 +168,26 @@ impl World {
         }
     }
 
+    pub fn place_block(&mut self, loc: WorldPoint, id: BlockID) {
+        let mut visibility = VISIBLE_NONE;
+        for face in Face::iter() {
+            let neighbor = self.get_block(loc + face.normal());
+            if neighbor.is_empty() {
+                visibility |= face.to_visible_mask();
+            } else {
+                let neighbor_face = face.opposite();
+                let new_neighbor = Block::from_id(neighbor.id,
+                                                  neighbor.visibility &
+                                                  (!neighbor_face.to_visible_mask()),
+                                                  neighbor.light);
+                self.set_block_immediate(loc + face.normal(), new_neighbor);
+            }
+        }
+
+        let block = Block::from_id(id, visibility, LightKind::source(15, 15));
+        self.set_block_immediate(loc, block);
+    }
+
     pub fn write_all_chunks(&self) {
         for (_, chunk) in &self.chunks {
             chunk.write(&self.world_root);

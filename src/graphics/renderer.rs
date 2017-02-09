@@ -107,8 +107,8 @@ impl<R: gfx::Resources> Renderer<R> {
         }
     }
 
-    pub fn add_models(&mut self, mut models: Vec<Model<R>>) {
-        self.models.append(&mut models);
+    pub fn set_models(&mut self, models: Vec<Model<R>>) {
+        self.models = models;
     }
 
     pub fn render<C: gfx::CommandBuffer<R>>(&mut self, encoder: &mut gfx::Encoder<R, C>) {
