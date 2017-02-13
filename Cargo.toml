@@ -5,7 +5,6 @@ authors = ["Nitori- <nat1192@gmail.com>"]
 
 [dependencies]
 cgmath = "*"
-dot_vox = "*"
 bitflags = "*"
 log = "*"
 chrono = "*"

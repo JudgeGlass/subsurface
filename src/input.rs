@@ -7,6 +7,7 @@ pub enum Command {
     CameraTranslate(State, Vector3<f32>),
     CameraLook(Vector2<f32>),
     Place,
+    Save,
 }
 
 pub enum State {
@@ -45,6 +46,7 @@ fn glutin_key_to_command(state: ElementState, key: Option<VirtualKeyCode>) -> Co
         Some(VirtualKeyCode::LShift) => {
             Command::CameraTranslate(glutin_state_to_state(state), vec3(0.0, -1.0, 0.0))
         }
+        Some(VirtualKeyCode::F3) => Command::Save,
         _ => Command::Noop,
     }
 }

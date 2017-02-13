@@ -2,7 +2,6 @@
 extern crate log;
 extern crate glutin;
 extern crate cgmath;
-extern crate dot_vox;
 #[macro_use]
 extern crate bitflags;
 extern crate chrono;
@@ -50,10 +49,12 @@ fn main() {
             .short("w")
             .takes_value(true)
             .default_value("test_world"))
-        .arg(Arg::with_name("vox")
-            .help("Load world from MagicaVoxel file")
-            .long("vox")
-            .takes_value(true))
+        .arg(Arg::with_name("generator")
+            .help("Use flat terrain generator")
+            .long("generator")
+            .short("g")
+            .takes_value(true)
+            .default_value("simplex"))
         .get_matches();
 
     let builder = glutin::WindowBuilder::new()
@@ -78,21 +79,15 @@ fn main() {
     let mut cycler: u64 = 0;
 
     let world_path = Path::new(matches.value_of("world").unwrap());
-    let chunk_gen: Box<world::terrain::SimplexGenerator> =
-        Box::new(world::terrain::SimplexGenerator::new(50, 1));
-    let mut world = {
-        match matches.value_of("vox") {
-            Some(path) => {
-                let data = dot_vox::load(path).unwrap();
-                world::World::from_vox(data, &world_path, chunk_gen)
-            }
-            None => {
-                world::World::from_path(&world_path,
-                                        (vec3(-64, 0, -64), vec3(64, 64, 64)),
-                                        chunk_gen)
-            }
-        }
+    let chunk_gen: Box<world::terrain::ChunkGenerator> = match matches.value_of("generator")
+        .unwrap() {
+        "flat" => Box::new(world::terrain::FlatGenerator::new(50, 1, "stone".into())),
+        _ => Box::new(world::terrain::SimplexGenerator::new(50, 1)),
     };
+
+    let mut world = world::World::from_path(&world_path,
+                                            (vec3(-64, 0, -64), vec3(64, 64, 64)),
+                                            chunk_gen);
 
     voxrender.set_models(world.make_models(&mut factory));
 
@@ -143,6 +138,9 @@ fn main() {
                         world.place_block(loc + face.normal(), id);
                         voxrender.set_models(world.make_models(&mut factory));
                     }
+                }
+                input::Command::Save => {
+                    world.write_all_chunks();
                 }
                 input::Command::Noop => (),
             }

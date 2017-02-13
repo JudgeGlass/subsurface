@@ -1,7 +1,6 @@
 use std::collections::hash_map::HashMap;
 use std::path::{Path, PathBuf};
 use prelude::*;
-use dot_vox;
 use graphics;
 use gfx;
 
@@ -35,36 +34,6 @@ fn origins() {
 
 
 impl World {
-    pub fn from_vox(data: dot_vox::DotVoxData,
-                    world_root: &Path,
-                    chunk_gen: Box<ChunkGenerator>)
-                    -> World {
-        debug!("Loading world from MagicaVoxel data...");
-        let mut world = World {
-            chunks: HashMap::new(),
-            world_root: world_root.into(),
-            chunk_gen: chunk_gen,
-            registry: Registry::new(),
-        };
-
-        for model in &data.models {
-            for voxel in &model.voxels {
-                let loc = point3(voxel.y as i32, voxel.z as i32, voxel.x as i32);
-                let color32 = data.pallete[voxel.i as usize];
-
-                world.set_block_immediate(loc,
-                                          Block::from_id(BlockID(color32),
-                                                         VISIBLE_NONE,
-                                                         LightKind::source(0, 0)));
-            }
-        }
-
-        world.fix_visibility();
-        world.write_all_chunks();
-
-        world
-    }
-
     pub fn from_path(world_root: &Path,
                      extents: (Vector3<i32>, Vector3<i32>),
                      chunk_gen: Box<ChunkGenerator>)
