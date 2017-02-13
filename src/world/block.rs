@@ -94,8 +94,8 @@ impl Face {
             Face::Bottom => Face::Top,
             Face::Left => Face::Right,
             Face::Right => Face::Left,
-            Face::Front => Face::Front,
-            Face::Back => Face::Back,
+            Face::Front => Face::Back,
+            Face::Back => Face::Front,
         }
     }
 
