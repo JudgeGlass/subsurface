@@ -89,7 +89,10 @@ fn main() {
                                             (vec3(-64, 0, -64), vec3(64, 64, 64)),
                                             chunk_gen);
 
-    voxrender.set_models(world.make_models(&mut factory));
+    let mut models = world.make_models(&mut factory);
+    for model in models.drain(..) {
+        voxrender.set_model(model.0, model.1);
+    }
 
 
     let text_renderer = gfx_text::new(factory.clone()).unwrap();
@@ -136,7 +139,6 @@ fn main() {
                     if let Some((loc, face)) = casted {
                         let id = world.registry.lookup_id(&"stone".into()).unwrap();
                         world.place_block(loc + face.normal(), id);
-                        voxrender.set_models(world.make_models(&mut factory));
                     }
                 }
                 input::Command::Save => {
@@ -145,6 +147,9 @@ fn main() {
                 input::Command::Noop => (),
             }
         }
+
+        // Update as much as one dirty chunk per frame
+        world.clean_chunk(&mut factory).map(|o| voxrender.set_model(o.0, o.1));
 
         voxrender.camera.relative_translate(delta * 5.0 * camera_frame_translator);
         debug_renderer.draw_text_on_screen(&format!("Camera {:?}", voxrender.camera.position),

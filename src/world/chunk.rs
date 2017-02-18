@@ -18,6 +18,7 @@ pub const CHUNK_EXTENTS_LESS_ONE: Vector3<i32> = Vector3 {
 pub struct Chunk {
     blocks: Vec<Block>,
     pub origin: WorldPoint,
+    pub dirty: bool,
 }
 
 
@@ -60,6 +61,7 @@ impl Chunk {
                 Some(Chunk {
                     blocks: decode(bytes.as_slice()).unwrap(),
                     origin: origin,
+                    dirty: false,
                 })
             }
             Err(_) => {
@@ -73,6 +75,7 @@ impl Chunk {
         let mut ret = Chunk {
             blocks: Vec::with_capacity((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) as usize),
             origin: origin,
+            dirty: false,
         };
         ret.blocks.resize((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) as usize,
                           Block::from_id(BlockID(0), VISIBLE_NONE, SOLID_NO_LIGHT));

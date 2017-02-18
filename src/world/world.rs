@@ -15,6 +15,8 @@ pub struct World {
     world_root: PathBuf,
     chunk_gen: Box<ChunkGenerator>,
     pub registry: Registry,
+
+    dirty_chunks: Vec<WorldPoint>,
 }
 
 #[inline]
@@ -45,6 +47,8 @@ impl World {
             world_root: world_root.into(),
             chunk_gen: chunk_gen,
             registry: Registry::new(),
+
+            dirty_chunks: Vec::new(),
         };
         for x in range_step(extents.0.x, extents.1.x, CHUNK_SIZE) {
             for y in range_step(extents.1.y - CHUNK_SIZE,
@@ -74,15 +78,32 @@ impl World {
 
     pub fn make_models<R, F: gfx::traits::FactoryExt<R>>(&self,
                                                          factory: &mut F)
-                                                         -> Vec<graphics::Model<R>>
+                                                         -> Vec<(WorldPoint, graphics::Model<R>)>
         where R: gfx::Resources
     {
         self.chunks
             .iter()
-            .map(|(_, chunk)| graphics::Model::new(factory, chunk, &self.registry))
-            .filter(|o| o.is_some())
-            .map(|o| o.unwrap())
+            .map(|(origin, chunk)| (origin, graphics::Model::new(factory, chunk, &self.registry)))
+            .filter(|o| o.1.is_some())
+            .map(|o| (*o.0, o.1.unwrap()))
             .collect()
+    }
+
+    pub fn clean_chunk<R, F>(&mut self, factory: &mut F) -> Option<(WorldPoint, graphics::Model<R>)>
+        where R: gfx::Resources,
+              F: gfx::traits::FactoryExt<R>
+    {
+        match self.dirty_chunks.pop() {
+            Some(origin) => {
+                let chunk = self.chunks.get_mut(&origin).unwrap();
+                chunk.dirty = false;
+                match graphics::Model::new(factory, chunk, &self.registry) {
+                    Some(model) => Some((origin, model)),
+                    None => None,
+                }
+            }
+            None => None,
+        }
     }
 
     pub fn get_block(&self, loc: WorldPoint) -> Block {
@@ -126,6 +147,10 @@ impl World {
         let new_chunk = match self.chunks.get_mut(&chunk_origin) {
             Some(chunk) => {
                 chunk.set_block_immediate(loc, block);
+                if !chunk.dirty {
+                    chunk.dirty = true;
+                    self.dirty_chunks.push(chunk_origin);
+                }
                 None
             }
             None => Some(Chunk::new(chunk_origin)),

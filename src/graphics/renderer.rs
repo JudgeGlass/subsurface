@@ -3,9 +3,11 @@ use prelude::*;
 use cgmath::{Deg, perspective, SquareMatrix};
 use gfx;
 use image;
+use std::collections::hash_map::HashMap;
 
 use graphics::model::Model;
 use graphics::Camera;
+use world::WorldPoint;
 
 // If this is > 12 bytes, indexed drawing is has better space efficiency
 gfx_vertex_struct!{
@@ -32,7 +34,7 @@ gfx_pipeline!{
 
 pub struct Renderer<R: gfx::Resources> {
     pso: gfx::pso::PipelineState<R, pipe::Meta>,
-    models: Vec<Model<R>>,
+    models: HashMap<WorldPoint, Model<R>>,
     data: pipe::Data<R>,
     pub camera: Camera,
     pub projection: [[f32; 4]; 4],
@@ -100,15 +102,15 @@ impl<R: gfx::Resources> Renderer<R> {
 
         Renderer {
             pso: pso,
-            models: Vec::new(),
+            models: HashMap::new(),
             camera: Camera::new(point3(-1.0, 40.0, -1.0), 0.0, 0.0),
             data: data,
             projection: perspective(Deg(90.0), 1024 as f32 / 768 as f32, 0.1, 1000.0).into(),
         }
     }
 
-    pub fn set_models(&mut self, models: Vec<Model<R>>) {
-        self.models = models;
+    pub fn set_model(&mut self, origin: WorldPoint, models: Model<R>) {
+        self.models.insert(origin, models);
     }
 
     pub fn render<C: gfx::CommandBuffer<R>>(&mut self, encoder: &mut gfx::Encoder<R, C>) {
@@ -117,12 +119,12 @@ impl<R: gfx::Resources> Renderer<R> {
         encoder.clear_stencil(&self.data.out_depth_stencil, 0);
 
         for model in &self.models {
-            self.data.model = model.model;
+            self.data.model = model.1.model;
             self.data.view = *self.camera.get_view_matrix();
             self.data.projection = self.projection;
-            self.data.vbo = model.vbo.clone();
+            self.data.vbo = model.1.vbo.clone();
 
-            encoder.draw(&model.slice, &self.pso, &self.data);
+            encoder.draw(&model.1.slice, &self.pso, &self.data);
         }
     }
 }

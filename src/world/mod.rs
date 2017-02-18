@@ -8,8 +8,8 @@ pub mod world;
 pub mod terrain;
 pub mod registry;
 
-type WorldPoint = Point3<i32>;
-type LocalPoint = Point3<u8>;
+pub type WorldPoint = Point3<i32>;
+pub type LocalPoint = Point3<u8>;
 
 pub use self::world::World;
 
