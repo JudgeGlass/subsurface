@@ -133,12 +133,22 @@ fn main() {
                 input::Command::Place => {
                     let direction = (voxrender.camera.look_at - voxrender.camera.position)
                         .normalize();
-                    let casted = world.cast_ray(voxrender.camera.position, 20.0 * direction);
+                    let casted = world.cast_ray(voxrender.camera.position, 10.0 * direction);
                     println!("Raycast result {:?}", casted);
 
                     if let Some((loc, face)) = casted {
                         let id = world.registry.lookup_id(&"stone".into()).unwrap();
                         world.place_block(loc + face.normal(), id);
+                    }
+                }
+                input::Command::Break => {
+                    let direction = (voxrender.camera.look_at - voxrender.camera.position)
+                        .normalize();
+                    let casted = world.cast_ray(voxrender.camera.position, 10.0 * direction);
+                    println!("Raycast result {:?}", casted);
+
+                    if let Some((loc, _)) = casted {
+                        world.break_block(loc);
                     }
                 }
                 input::Command::Save => {

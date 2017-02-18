@@ -182,6 +182,24 @@ impl World {
         self.set_block_immediate(loc, block);
     }
 
+    pub fn break_block(&mut self, loc: WorldPoint) {
+        let block = Block::from_id(BlockID(0), VISIBLE_NONE, LightKind::source(15, 15));
+        self.set_block_immediate(loc, block);
+
+        for face in Face::iter() {
+            let neighbor = self.get_block(loc + face.normal());
+            if !neighbor.is_empty() {
+                let neighbor_face = face.opposite();
+                let new_neighbor = Block::from_id(neighbor.id,
+                                                  neighbor.visibility |
+                                                  neighbor_face.to_visible_mask(),
+                                                  neighbor.light);
+                self.set_block_immediate(loc + face.normal(), new_neighbor);
+            }
+        }
+
+    }
+
     pub fn write_all_chunks(&self) {
         for (_, chunk) in &self.chunks {
             chunk.write(&self.world_root);

@@ -7,6 +7,7 @@ pub enum Command {
     CameraTranslate(State, Vector3<f32>),
     CameraLook(Vector2<f32>),
     Place,
+    Break,
     Save,
 }
 
@@ -21,6 +22,7 @@ pub fn glutin_event_to_command(event: Event) -> Command {
         Event::KeyboardInput(state, _, key) => glutin_key_to_command(state, key),
         Event::MouseMoved(x, y) => Command::CameraLook(vec2(x as f32, y as f32)),
         Event::MouseInput(ElementState::Pressed, MouseButton::Right) => Command::Place,
+        Event::MouseInput(ElementState::Pressed, MouseButton::Left) => Command::Break,
         _ => Command::Noop,
     }
 }
