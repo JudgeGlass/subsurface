@@ -240,7 +240,7 @@ impl World {
                 max.y += delta.y;
                 point3(0, -step.y as i32, 0)
             } else {
-                assert!(max.z < max.x && max.z < max.y);
+                assert!(max.z <= max.x && max.z <= max.y);
                 if max.z.abs() > direction.z.abs() {
                     break;
                 }
