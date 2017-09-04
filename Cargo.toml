@@ -20,6 +20,7 @@ noise = "*"
 num = "*"
 gfx_debug_draw = { git = "https://github.com/Nitori-/gfx_debug_draw", branch = "line-target" }
 gfx_text = "*"
+rand = "*"
 
 [replace]
 "gfx:0.14.0" = { git = "https://github.com/gfx-rs/gfx" }
