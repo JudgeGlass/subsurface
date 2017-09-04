@@ -1,3 +1,5 @@
+extern crate rand;
+
 use prelude::*;
 use world::block::Block;
 use world::chunk::{Chunk, CHUNK_SIZE};
@@ -19,7 +21,7 @@ impl SimplexGenerator {
             high: high,
             low: low,
 
-            seed: noise::Seed::new(87),
+            seed: noise::Seed::new(rand::random::<u32>()),
         }
     }
 }
